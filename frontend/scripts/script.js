@@ -254,7 +254,7 @@ if (registerForm) {
 
 
 const username = localStorage.getItem('username');
-const currentPath = window.top.location.pathname; // Check main window path
+const currentPath = window.top.location.pathname;
 
 const isAuthPage = currentPath.includes('login.html') || currentPath.includes('register.html');
 
@@ -289,6 +289,8 @@ if (username && !isAuthPage) {
 
 const inputFoto = document.getElementById('fotoBarang');
 const previewFoto = document.getElementById('preview');
+const contohGambar = document.getElementById('contohGambar');
+const pElement = document.getElementById('p');
 
 if (inputFoto) {
     inputFoto.addEventListener('change', function() {
@@ -302,6 +304,10 @@ if (inputFoto) {
             previewFoto.style.display = 'block';
 
             previewFoto.hidden = false;
+
+            contohGambar.hidden = true;
+
+            pElement.hidden = true;
         }
     });
 }
