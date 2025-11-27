@@ -124,8 +124,11 @@ function renderDashboard() {
     myItems.forEach(item => {
         const row = `
             <tr>
-                <td><strong>${item.name}</strong><br><small>${item.desc}</small><br><img class="kucingBaru" src="../gambar/cat4.jpg" alt="Foto Kucing Lucu"></td>
-                <td>${item.date}</td>
+                <td>${item.user}</td>
+                <td>${item.name}</td>
+                <td><img class="kucingBaru" src="../gambar/cat4.jpg" alt="Foto Kucing Lucu"></td>
+                <td>kucing yang sangat lucu</td>
+                <td>${item.loc}</td>
                 <td>${item.status}</td>
                 <td>
                     <button class="action-btn btn-delete" onclick="deleteItem(${item.id})">Hapus</button>
