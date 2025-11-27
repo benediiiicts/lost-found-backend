@@ -250,6 +250,31 @@ if (registerForm) {
     });
 }
 
-function toggleLogin() {
+
+const username = localStorage.getItem('username');
+const currentPath = window.location.pathname;
+
+const isAuthPage = currentPath.includes('login.html') || currentPath.includes('register.html');
+
+if (!username && !isAuthPage) {
+    alert("Anda harus login untuk mengakses aplikasi ini!");
     window.location.href = './pages/login.html';
+}
+
+if (username && !isAuthPage) {
+    const logoutBtn = document.querySelector('.btn-login');
+
+    if (logoutBtn) {
+        logoutBtn.innerText = "Logout";
+        logoutBtn.classList.add('btn-logout');
+
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm("Yakin ingin keluar?")) {
+                localStorage.clear(); 
+                window.location.href = 'login.html';
+            }
+        });
+    }
 }
