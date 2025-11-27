@@ -253,20 +253,3 @@ if (registerForm) {
 function toggleLogin() {
     window.location.href = './pages/login.html';
 }
-
-function toggleAuthMode() {
-    isLoginMode = !isLoginMode;
-    const title = document.getElementById('formTitle');
-    const btn = document.getElementById('btnSubmit');
-    const toggleText = document.getElementById('toggleText');
-
-    if (isLoginMode) {
-        title.innerText = "Login";
-        btn.innerText = "Masuk";
-        toggleText.innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode()">Daftar di sini</a>';
-    } else {
-        title.innerText = "Daftar Akun";
-        btn.innerText = "Daftar";
-        toggleText.innerHTML = 'Sudah punya akun? <a href="#" onclick="toggleAuthMode()">Login di sini</a>';
-    }
-}
