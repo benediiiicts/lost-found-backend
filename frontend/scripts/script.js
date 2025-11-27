@@ -4,9 +4,9 @@ const STORAGE_KEY = 'lostFoundData';
 
 // Data bawaan jika localStorage masih kosong
 const defaultData = [
-    { id: 1, user: "Budi", type: "lost", name: "Helm Bogo Hitam", loc: "Parkiran A", date: "2023-10-01", status: "Hilang", desc: "Ada stiker Apple di belakang" },
-    { id: 2, user: "Admin", type: "found", name: "KTM An. Siti", loc: "Kantin", date: "2023-10-02", status: "Ditemukan", desc: "Ditemukan di meja nomor 5" },
-    { id: 3, user: "Budi", type: "lost", name: "Tumbler Corkcicle", loc: "Perpus", date: "2023-10-03", status: "Selesai", desc: "Warna putih" },
+    { id: 1, user: "Budi", type: "lost", name: "Helm Bogo Hitam", loc: "Ruang LabKom 9017", date: "2023-10-01", status: "Hilang", desc: "Ada stiker Apple di belakang" },
+    { id: 2, user: "Admin", type: "found", name: "KTM An. Kristiadi", loc: "Ruang LabKom 9015", date: "2023-10-02", status: "Ditemukan", desc: "Ditemukan di meja nomor 5" },
+    { id: 3, user: "Budi", type: "lost", name: "Tumbler Corkcicle", loc: "Lorong LabKom", date: "2023-10-03", status: "Selesai", desc: "Warna putih" },
 ];
 
 function loadData() {
