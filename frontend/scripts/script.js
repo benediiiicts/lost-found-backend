@@ -63,7 +63,7 @@ if (reportForm) {
         saveData(itemsData); // Simpan ke storage
 
         alert('Laporan berhasil dibuat!');
-        window.location.href = 'index.html'; // Redirect ke home
+        window.location.href = '../index.html'; // Redirect ke home
     });
 }
 
@@ -180,5 +180,70 @@ function markSolved(id) {
 }
 
 function toggleLogin() {
-    alert("Ini adalah simulasi Login. Saat ini Anda login sebagai User: 'Budi'.");
+    window.location.href = './pages/login.html';
+}
+
+const authForm = document.getElementById('authForm');
+let isLoginMode = true;
+
+if (authForm) {
+    authForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const usernameVal = document.getElementById('username').value;
+        const passwordVal = document.getElementById('password').value;
+        const btn = document.getElementById('btnSubmit');
+
+        // Visual feedback loading
+        const originalText = btn.innerText;
+        btn.innerText = 'Memproses...';
+        btn.disabled = true;
+
+        try {
+            console.log(`Mengirim data ke Backend: Mode=${isLoginMode ? 'Login' : 'Register'}, User=${usernameVal}`);
+            
+            await new Promise(r => setTimeout(r, 1000));
+
+            if (isLoginMode) {
+                if(usernameVal === "admin" && passwordVal === "admin123") {
+                    alert("Login Berhasil sebagai Admin!");
+                    localStorage.setItem('userRole', 'admin');
+                    localStorage.setItem('username', usernameVal);
+                    window.location.href = 'admin.html';
+                } else {
+                    //sementara siapapun bisa login, data belum nyambung db
+                    alert(`Selamat datang kembali, ${usernameVal}!`);
+                    localStorage.setItem('userRole', 'user');
+                    localStorage.setItem('username', usernameVal);
+                    window.location.href = 'dashboard.html'; 
+                }
+            } else {
+                alert("Registrasi Berhasil! Silakan Login.");
+                toggleAuthMode(); //pindah ke mode login
+            }
+
+        } catch (error) {
+            alert("Terjadi kesalahan: " + error.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    });
+}
+
+function toggleAuthMode() {
+    isLoginMode = !isLoginMode;
+    const title = document.getElementById('formTitle');
+    const btn = document.getElementById('btnSubmit');
+    const toggleText = document.getElementById('toggleText');
+
+    if (isLoginMode) {
+        title.innerText = "Login";
+        btn.innerText = "Masuk";
+        toggleText.innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode()">Daftar di sini</a>';
+    } else {
+        title.innerText = "Daftar Akun";
+        btn.innerText = "Daftar";
+        toggleText.innerHTML = 'Sudah punya akun? <a href="#" onclick="toggleAuthMode()">Login di sini</a>';
+    }
 }
