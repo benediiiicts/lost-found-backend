@@ -260,7 +260,11 @@ const isAuthPage = currentPath.includes('login.html') || currentPath.includes('r
 
 if (!username && !isAuthPage) {
     alert("Anda harus login untuk mengakses aplikasi ini!");
-    window.location.href = './pages/login.html';
+    if (currentPath.includes('/pages/')) {
+        window.location.href = 'login.html';
+    } else {
+        window.location.href = './pages/login.html';
+    }
 }
 
 if (username && !isAuthPage) {
@@ -275,7 +279,11 @@ if (username && !isAuthPage) {
             
             if (confirm("Yakin ingin keluar?")) {
                 localStorage.clear(); 
-                window.location.href = 'login.html';
+                if (currentPath.includes('/pages/')) {
+                    window.location.href = 'login.html';
+                } else {
+                    window.location.href = './pages/login.html';
+                }
             }
         });
     }
