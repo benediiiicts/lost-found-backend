@@ -179,56 +179,79 @@ function markSolved(id) {
     }
 }
 
-function toggleLogin() {
-    window.location.href = './pages/login.html';
-}
-
-const authForm = document.getElementById('authForm');
-let isLoginMode = true;
-
-if (authForm) {
-    authForm.addEventListener('submit', async function(e) {
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const usernameVal = document.getElementById('username').value;
-        const passwordVal = document.getElementById('password').value;
-        const btn = document.getElementById('btnSubmit');
-
-        // Visual feedback loading
+        const usernameVal = document.getElementById('loginUsername').value;
+        const passwordVal = document.getElementById('loginPassword').value;
+        const btn = loginForm.querySelector('button');
+        
         const originalText = btn.innerText;
         btn.innerText = 'Memproses...';
         btn.disabled = true;
 
         try {
-            console.log(`Mengirim data ke Backend: Mode=${isLoginMode ? 'Login' : 'Register'}, User=${usernameVal}`);
-            
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 800));
 
-            if (isLoginMode) {
-                if(usernameVal === "admin" && passwordVal === "admin123") {
-                    alert("Login Berhasil sebagai Admin!");
-                    localStorage.setItem('userRole', 'admin');
-                    localStorage.setItem('username', usernameVal);
-                    window.location.href = 'admin.html';
-                } else {
-                    //sementara siapapun bisa login, data belum nyambung db
-                    alert(`Selamat datang kembali, ${usernameVal}!`);
-                    localStorage.setItem('userRole', 'user');
-                    localStorage.setItem('username', usernameVal);
-                    window.location.href = 'dashboard.html'; 
-                }
+            if(usernameVal === "admin" && passwordVal === "admin123") {
+                alert("Login Berhasil sebagai Admin!");
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('username', usernameVal);
+                window.location.href = 'admin.html';
             } else {
-                alert("Registrasi Berhasil! Silakan Login.");
-                toggleAuthMode(); //pindah ke mode login
+                // User biasa
+                alert(`Selamat datang, ${usernameVal}!`);
+                localStorage.setItem('userRole', 'user');
+                localStorage.setItem('username', usernameVal);
+                window.location.href = '../index.html'; 
             }
-
         } catch (error) {
-            alert("Terjadi kesalahan: " + error.message);
+            alert("Login Gagal.");
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;
         }
     });
+}
+
+const registerForm = document.getElementById('registerForm');
+if (registerForm) {
+    registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const usernameVal = document.getElementById('regUsername').value;
+        const passwordVal = document.getElementById('regPassword').value;
+        const confirmVal = document.getElementById('regConfirmPassword').value;
+        const btn = registerForm.querySelector('button');
+
+        if (passwordVal !== confirmVal) {
+            alert("Konfirmasi password tidak cocok!");
+            return;
+        }
+
+        const originalText = btn.innerText;
+        btn.innerText = 'Mendaftarkan...';
+        btn.disabled = true;
+
+        try {
+            await new Promise(r => setTimeout(r, 800));
+
+            alert("Registrasi Berhasil! Silakan Login dengan akun baru Anda.");
+            window.location.href = 'login.html';
+
+        } catch (error) {
+            alert("Gagal Mendaftar.");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    });
+}
+
+function toggleLogin() {
+    window.location.href = './pages/login.html';
 }
 
 function toggleAuthMode() {
