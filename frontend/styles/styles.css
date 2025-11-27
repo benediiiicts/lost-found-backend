@@ -193,6 +193,10 @@ th { background-color: #f8f9fa; font-weight: 600; }
     margin-right: 5px;
 }
 
+textarea {
+    resize: none;
+}
+
 .btn-edit { background-color: #f1c40f; color: white; }
 .btn-delete { background-color: var(--danger-color); color: white; }
 .btn-resolve { background-color: var(--success-color); color: white; }

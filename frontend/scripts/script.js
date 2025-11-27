@@ -97,10 +97,10 @@ function renderItems() {
     filteredItems.forEach(item => {
         const badgeClass = item.type === 'lost' ? 'status-lost' : 'status-found';
         const badgeText = item.type === 'lost' ? 'Kehilangan' : 'Ditemukan';
-
+        
         const cardHTML = `
             <div class="card">
-                <div class="card-header">📷</div> 
+                <div class="card-header"><img src="\gambar\cat4.jpg" alt=""></div> 
                 <div class="card-body">
                     <span class="status-badge ${badgeClass}">${badgeText}</span>
                     <h3 class="card-title">${item.name}</h3>
