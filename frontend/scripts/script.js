@@ -1,8 +1,7 @@
-// --- DATA HANDLING (LocalStorage) ---
 const currentUser = "Budi";
 const STORAGE_KEY = 'lostFoundData';
 
-// Data bawaan jika localStorage masih kosong
+//Data dummy
 const defaultData = [
     { id: 1, user: "Budi", type: "lost", name: "Helm Bogo Hitam", loc: "Parkiran A", date: "2023-10-01", status: "Hilang", desc: "Ada stiker Apple di belakang" },
     { id: 2, user: "Admin", type: "found", name: "KTM An. Siti", loc: "Kantin", date: "2023-10-02", status: "Ditemukan", desc: "Ditemukan di meja nomor 5" },
@@ -20,24 +19,18 @@ function saveData(data) {
 
 let itemsData = loadData();
 
-// --- PAGE LOGIC ---
-
-// 1. Logic untuk Halaman Utama (index.html)
 if (document.getElementById('itemsContainer')) {
     renderItems();
 }
 
-// 2. Logic untuk Dashboard User (dashboard.html)
 if (document.getElementById('userTable')) {
     renderDashboard();
 }
 
-// 3. Logic untuk Admin Panel (admin.html)
 if (document.getElementById('adminTable')) {
     renderAdmin();
 }
 
-// 4. Logic untuk Form Laporan (report.html)
 const reportForm = document.getElementById('reportForm');
 if (reportForm) {
     reportForm.addEventListener('submit', function(e) {
@@ -49,7 +42,7 @@ if (reportForm) {
         const desc = document.getElementById('itemDesc').value;
         
         const newItem = {
-            id: Date.now(), // Gunakan timestamp agar ID unik
+            id: Date.now(),
             user: currentUser,
             type: type,
             name: name,
@@ -60,21 +53,18 @@ if (reportForm) {
         };
 
         itemsData.push(newItem);
-        saveData(itemsData); // Simpan ke storage
+        saveData(itemsData);
 
         alert('Laporan berhasil dibuat!');
-        window.location.href = '../index.html'; // Redirect ke home
+        window.location.href = '../index.html';
     });
 }
-
-// --- FUNCTIONS ---
 
 function renderItems() {
     const container = document.getElementById('itemsContainer');
     const searchInput = document.getElementById('searchInput');
     const filterInput = document.getElementById('filterType');
 
-    // Jika elemen tidak ada (misal di halaman lain), stop.
     if (!container) return;
 
     const search = searchInput ? searchInput.value.toLowerCase() : "";
@@ -170,7 +160,7 @@ function renderAdmin() {
 function deleteItem(id) {
     if(confirm('Yakin ingin menghapus laporan ini?')) {
         itemsData = itemsData.filter(item => item.id !== id);
-        saveData(itemsData); // Update storage
+        saveData(itemsData);
         renderDashboard();
     }
 }
@@ -179,7 +169,7 @@ function markSolved(id) {
     const item = itemsData.find(i => i.id === id);
     if(item) {
         item.status = 'Selesai';
-        saveData(itemsData); // Update storage
+        saveData(itemsData);
         renderAdmin();
     }
 }
@@ -292,23 +282,17 @@ if (username && !isAuthPage) {
     }
 }
 
-// 1. Ambil elemen input dan img
 const inputFoto = document.getElementById('fotoBarang');
 const previewFoto = document.getElementById('preview');
 
-// 2. Tambahkan event listener saat user memilih file
 inputFoto.addEventListener('change', function() {
   const file = this.files[0];
 
-  // 3. Cek apakah file ada
   if (file) {
-    // Buat URL sementara dari file yang dipilih
     const urlGambar = URL.createObjectURL(file);
 
-    // Masukkan URL ke src tag img
     previewFoto.src = urlGambar;
 
-    // Tampilkan gambar (karena awalnya display: none)
     previewFoto.style.display = 'block';
 
     previewFoto.hidden = false;
