@@ -207,6 +207,10 @@ img {
     height: 300px;
 }
 
+.kucingBaru {
+    width: 100px;
+}
+
 .btn-edit { background-color: #f1c40f; color: white; }
 .btn-delete { background-color: var(--danger-color); color: white; }
 .btn-resolve { background-color: var(--success-color); color: white; }

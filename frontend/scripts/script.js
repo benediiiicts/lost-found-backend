@@ -124,7 +124,7 @@ function renderDashboard() {
     myItems.forEach(item => {
         const row = `
             <tr>
-                <td><strong>${item.name}</strong><br><small>${item.desc}</small></td>
+                <td><strong>${item.name}</strong><br><small>${item.desc}</small><br><img class="kucingBaru" src="../gambar/cat4.jpg" alt="Foto Kucing Lucu"></td>
                 <td>${item.date}</td>
                 <td>${item.status}</td>
                 <td>
@@ -153,6 +153,8 @@ function renderAdmin() {
             <tr>
                 <td>${item.user}</td>
                 <td>${item.name}</td>
+                <td><img class="kucingBaru" src="../gambar/cat4.jpg" alt="Foto Kucing Lucu"></td>
+                <td>kucing yang sangat lucu</td>
                 <td>${item.loc}</td>
                 <td>${item.status}</td>
                 <td>${actionButton}</td>
@@ -270,3 +272,26 @@ function toggleAuthMode() {
         toggleText.innerHTML = 'Sudah punya akun? <a href="#" onclick="toggleAuthMode()">Login di sini</a>';
     }
 }
+
+// 1. Ambil elemen input dan img
+const inputFoto = document.getElementById('fotoBarang');
+const previewFoto = document.getElementById('preview');
+
+// 2. Tambahkan event listener saat user memilih file
+inputFoto.addEventListener('change', function() {
+  const file = this.files[0];
+
+  // 3. Cek apakah file ada
+  if (file) {
+    // Buat URL sementara dari file yang dipilih
+    const urlGambar = URL.createObjectURL(file);
+
+    // Masukkan URL ke src tag img
+    previewFoto.src = urlGambar;
+
+    // Tampilkan gambar (karena awalnya display: none)
+    previewFoto.style.display = 'block';
+
+    previewFoto.hidden = false;
+  }
+});
