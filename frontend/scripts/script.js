@@ -252,24 +252,32 @@ if (registerForm) {
     });
 }
 
-function toggleLogin() {
+
+const username = localStorage.getItem('username');
+const currentPath = window.location.pathname;
+
+const isAuthPage = currentPath.includes('login.html') || currentPath.includes('register.html');
+
+if (!username && !isAuthPage) {
+    alert("Anda harus login untuk mengakses aplikasi ini!");
     window.location.href = './pages/login.html';
 }
 
-function toggleAuthMode() {
-    isLoginMode = !isLoginMode;
-    const title = document.getElementById('formTitle');
-    const btn = document.getElementById('btnSubmit');
-    const toggleText = document.getElementById('toggleText');
+if (username && !isAuthPage) {
+    const logoutBtn = document.querySelector('.btn-login');
 
-    if (isLoginMode) {
-        title.innerText = "Login";
-        btn.innerText = "Masuk";
-        toggleText.innerHTML = 'Belum punya akun? <a href="#" onclick="toggleAuthMode()">Daftar di sini</a>';
-    } else {
-        title.innerText = "Daftar Akun";
-        btn.innerText = "Daftar";
-        toggleText.innerHTML = 'Sudah punya akun? <a href="#" onclick="toggleAuthMode()">Login di sini</a>';
+    if (logoutBtn) {
+        logoutBtn.innerText = "Logout";
+        logoutBtn.classList.add('btn-logout');
+
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm("Yakin ingin keluar?")) {
+                localStorage.clear(); 
+                window.location.href = 'login.html';
+            }
+        });
     }
 }
 
