@@ -202,6 +202,11 @@ img {
     height: 100%;
 }
 
+.fotoKucing5 {
+    width: 350px;
+    height: 300px;
+}
+
 .btn-edit { background-color: #f1c40f; color: white; }
 .btn-delete { background-color: var(--danger-color); color: white; }
 .btn-resolve { background-color: var(--success-color); color: white; }
