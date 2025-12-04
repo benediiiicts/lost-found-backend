@@ -6,7 +6,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PUBLIC_DIR = path.join(__dirname, "../public");
 
-// --- Helper: Serve File Biasa ---
 export const serveFile = (response, fullPath, contentType) => {
     fs.readFile(fullPath, (err, data) => {
         if (err) {
@@ -20,8 +19,7 @@ export const serveFile = (response, fullPath, contentType) => {
     });
 };
 
-// --- Helper: Serve Page dengan Header (VERSI SIMPEL / ROLLBACK) ---
-// Parameter 'currentUser' boleh dibiarkan ada, meski tidak dipakai di sini
+
 export const servePageWithHeader = (res, pagePath, currentUser) => {
     try {
         let headerPath;
@@ -37,10 +35,8 @@ export const servePageWithHeader = (res, pagePath, currentUser) => {
         
         const pageContent = fs.readFileSync(pagePath, "utf-8");
 
-        // 3. Gabungkan
         const finalHtml = pageContent.replace("", headerContent);
 
-        // 4. Kirim
         res.writeHead(200, { "Content-Type": "text/html" });
         res.end(finalHtml);
     } catch (err) {

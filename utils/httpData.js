@@ -1,4 +1,3 @@
-// utils/httpData.js
 export const readBody = (request) => {
     return new Promise((resolve, reject) => {
         let body = "";

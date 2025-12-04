@@ -1,7 +1,4 @@
-// --- KONFIGURASI ---
-// Tidak ada lagi localStorage. Semua data dari Database via API.
 
-// --- FUNGSI UTAMA: MENGAMBIL DATA DARI SERVER ---
 async function fetchItems(filterUserOnly = false) {
     try {
         let url = '/api/laporan';
@@ -13,27 +10,25 @@ async function fetchItems(filterUserOnly = false) {
         if (!response.ok) throw new Error("Gagal mengambil data");
         
         const data = await response.json();
-        return data; // Array of Objects dari DB
+        return data;
     } catch (error) {
         console.error(error);
         return [];
     }
 }
 
-// --- LOGIC HALAMAN BERANDA (index.html) ---
 if (document.getElementById('itemsContainer')) {
     const searchInput = document.getElementById('searchInput');
     const filterType = document.getElementById('filterType');
 
-    // Load data awal
     fetchItems().then(data => {
-        window.itemsData = data; // Simpan di memory browser sebentar
+        window.itemsData = data;
         renderItems(data);
     });
 
     if (searchInput) {
         searchInput.addEventListener('keyup', () => {
-            renderItems(window.itemsData); // Filter dari data yang sudah di-load
+            renderItems(window.itemsData); 
         });
     }
     if (filterType) {
@@ -43,54 +38,57 @@ if (document.getElementById('itemsContainer')) {
     }
 }
 
-// --- LOGIC HALAMAN DASHBOARD SAYA (dashboard.html) ---
 if (document.getElementById('userTable')) {
-    fetchItems(true).then(data => { // True artinya cuma ambil punya saya
+    fetchItems(true).then(data => {
         renderDashboard(data);
     });
 }
 
-// --- LOGIC HALAMAN ADMIN (admin.html) ---
 if (document.getElementById('adminTable')) {
-    fetchItems(false).then(data => { // False artinya ambil semua
+    fetchItems(false).then(data => { 
         renderAdmin(data);
     });
 }
 
-// --- LOGIC LAPOR BARANG (report.html) ---
 const reportForm = document.getElementById('reportForm');
 if (reportForm) {
     reportForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const type = document.getElementById('reportType').value;
-        const name = document.getElementById('itemName').value;
-        const loc = document.getElementById('itemLocation').value;
-        const desc = document.getElementById('itemDesc').value;
-
+        const formData = new FormData();
         
-        const payload = { type, name, loc, desc };
+        formData.append('type', document.getElementById('reportType').value);
+        formData.append('name', document.getElementById('itemName').value);
+        formData.append('loc', document.getElementById('itemLocation').value);
+        formData.append('desc', document.getElementById('itemDesc').value);
+        
+        const fileInput = document.getElementById('fotoBarang');
+        if (fileInput.files[0]) {
+            formData.append('foto', fileInput.files[0]); 
+        }
 
         try {
+
             const res = await fetch('/api/laporan', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: formData 
             });
 
-            if (res.ok) {
+            const result = await res.json();
+
+            if (res.ok && result.success) {
                 alert('Laporan berhasil dibuat!');
                 window.parent.location.href = '/beranda';
             } else {
-                alert('Gagal membuat laporan.');
+                alert('Gagal membuat laporan: ' + (result.message || 'Error'));
             }
         } catch (err) {
+            console.error(err);
             alert('Terjadi kesalahan server.');
         }
     });
 }
 
-// --- RENDERING FUNCTIONS (TAMPILAN) ---
 
 function renderItems(data) {
     const container = document.getElementById('itemsContainer');
@@ -104,12 +102,9 @@ function renderItems(data) {
 
     container.innerHTML = '';
 
-    // Filter Logic Client-Side (Setelah data diambil dari DB)
     const filteredItems = data.filter(item => {
-        // Mapping kolom DB (nama_barang) ke logika search
         const matchSearch = item.nama_barang.toLowerCase().includes(search) || item.lokasi.toLowerCase().includes(search);
         
-        // Mapping tipe_laporan DB (kehilangan/penemuan) ke value select (lost/found)
         let dbType = item.tipe_laporan === 'kehilangan' ? 'lost' : 'found';
         const matchType = filter === 'all' || dbType === filter;
         
@@ -127,7 +122,6 @@ function renderItems(data) {
         const badgeClass = isLost ? 'status-lost' : 'status-found';
         const badgeText = isLost ? 'Kehilangan' : 'Ditemukan';
         
-        // Format Tanggal
         const dateStr = new Date(item.tanggal_kejadian).toLocaleDateString();
 
         const cardHTML = `
@@ -198,13 +192,11 @@ function renderAdmin(data) {
     });
 }
 
-// --- ACTION FUNCTIONS (DELETE & UPDATE) ---
 
 window.deleteItem = async function(id) {
     if(confirm('Yakin ingin menghapus laporan ini?')) {
         try {
             await fetch(`/api/laporan/${id}`, { method: 'DELETE' });
-            // Refresh halaman atau fetch ulang
             location.reload(); 
         } catch (e) {
             alert("Gagal menghapus");
@@ -221,7 +213,6 @@ window.markSolved = async function(id) {
     }
 };
 
-// --- AUTH HANDLERS (LOGIN & REGISTER) ---
 
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -272,7 +263,6 @@ if (registerForm) {
     });
 }
 
-// --- UTILS GAMBAR (KOSMETIK SAJA) ---
 const inputFoto = document.getElementById('fotoBarang');
 const previewFoto = document.getElementById('preview');
 if (inputFoto && previewFoto) {

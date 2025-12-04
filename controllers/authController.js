@@ -1,4 +1,3 @@
-// controllers/authController.js
 import crypto from "node:crypto";
 import pool from "../db.js";
 import { readBody } from "../utils/httpData.js";
