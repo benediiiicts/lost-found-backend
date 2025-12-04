@@ -25,18 +25,39 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.navbar-frame {
+    width: 100%;
+    height: 85px;
+    border: none;
     position: sticky;
     top: 0;
     z-index: 100;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     margin-bottom: 2rem;
+    display: block;
+}
+
+.header-body {
+    background-color: transparent;
+    overflow: hidden;
 }
 
 .logo {
-    font-size: 1.5rem;
+    font-size: 1.5rem; 
     font-weight: bold;
     color: var(--primary-color);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
 }
 
 .nav-links a {
@@ -93,6 +114,10 @@ input[type="text"], select, textarea {
     width: 300px;
 }
 
+.filter-select {
+    width: 150px;
+}
+
 .items-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -141,6 +166,22 @@ input[type="text"], select, textarea {
 .card-title { font-size: 1.2rem; margin-bottom: 5px; }
 .card-info { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
 
+.card-desc-text {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.no-data-msg {
+    grid-column: 1/-1;
+    text-align: center;
+    color: #777;
+}
+
+.status-done-text {
+    color: green;
+}
+
 .form-container {
     max-width: 600px;
     margin: 0 auto;
@@ -176,6 +217,10 @@ table {
     box-shadow: var(--card-shadow);
 }
 
+.table-wrapper {
+    overflow-x: auto;
+}
+
 th, td {
     padding: 15px;
     text-align: left;
@@ -208,6 +253,10 @@ img {
 }
 
 .kucingBaru {
+    width: 100px;
+}
+
+.contohGambar {
     width: 100px;
 }
 
@@ -264,24 +313,32 @@ textarea {
     border-radius: 8px;
     outline: none;
     width: 100%;
-    font-size: 1rem; /* Agar teks tidak kekecilan */
-    transition: all 0.3s ease; /* Animasi halus */
+    font-size: 1rem;
+    transition: all 0.3s ease;
     background-color: #fff;
 }
 
-/* Efek saat kolom diklik (Focus State) */
 input:focus, 
 select:focus, 
 textarea:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Efek glow biru tipis */
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
 .btn-login.btn-logout {
-    background-color: var(--danger-color) !important; /* Warna Merah */
+    background-color: var(--danger-color) !important;
     color: white !important;
 }
 
 .btn-login.btn-logout:hover {
-    background-color: #c0392b !important; /* Merah lebih gelap saat di-hover */
+    background-color: #c0392b !important;
+}
+
+.page-title {
+    margin-bottom: 20px;
+}
+
+.report-title {
+    margin-bottom: 20px;
+    text-align: center;
 }

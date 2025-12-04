@@ -3,9 +3,9 @@ const STORAGE_KEY = 'lostFoundData';
 
 //Data dummy
 const defaultData = [
-    { id: 1, user: "Budi", type: "lost", name: "Helm Bogo Hitam", loc: "Parkiran A", date: "2023-10-01", status: "Hilang", desc: "Ada stiker Apple di belakang" },
-    { id: 2, user: "Admin", type: "found", name: "KTM An. Siti", loc: "Kantin", date: "2023-10-02", status: "Ditemukan", desc: "Ditemukan di meja nomor 5" },
-    { id: 3, user: "Budi", type: "lost", name: "Tumbler Corkcicle", loc: "Perpus", date: "2023-10-03", status: "Selesai", desc: "Warna putih" },
+    { id: 1, user: "Budi", type: "lost", name: "Helm Bogo Hitam", loc: "Ruang LabKom 9017", date: "2023-10-01", status: "Hilang", desc: "Ada stiker Apple di belakang" },
+    { id: 2, user: "Admin", type: "found", name: "KTM An. Kristiadi", loc: "Ruang LabKom 9015", date: "2023-10-02", status: "Ditemukan", desc: "Ditemukan di meja nomor 5" },
+    { id: 3, user: "Budi", type: "lost", name: "Tumbler Corkcicle", loc: "Lorong LabKom", date: "2023-10-03", status: "Selesai", desc: "Warna putih" },
 ];
 
 function loadData() {
@@ -20,6 +20,15 @@ function saveData(data) {
 let itemsData = loadData();
 
 if (document.getElementById('itemsContainer')) {
+    const searchInput = document.getElementById('searchInput');
+    const filterType = document.getElementById('filterType');
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', renderItems);
+    }
+    if (filterType) {
+        filterType.addEventListener('change', renderItems);
+    }
     renderItems();
 }
 
@@ -56,7 +65,7 @@ if (reportForm) {
         saveData(itemsData);
 
         alert('Laporan berhasil dibuat!');
-        window.location.href = '../index.html';
+        window.top.location.href = '../index.html';
     });
 }
 
@@ -80,7 +89,7 @@ function renderItems() {
     });
 
     if(filteredItems.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777;">Tidak ada data ditemukan.</p>';
+        container.innerHTML = '<p class="no-data-msg">Tidak ada data ditemukan.</p>';
         return;
     }
 
@@ -94,9 +103,9 @@ function renderItems() {
                 <div class="card-body">
                     <span class="status-badge ${badgeClass}">${badgeText}</span>
                     <h3 class="card-title">${item.name}</h3>
-                    <p class="card-info">📍 ${item.loc}</p>
-                    <p class="card-info">📅 ${item.date}</p>
-                    <p style="margin-top: 10px; font-size: 0.9rem; color: #444;">"${item.desc}"</p>
+                    <p class="card-info"> ${item.loc}</p>
+                    <p class="card-info"> ${item.date}</p>
+                    <p class="card-desc-text">"${item.desc}"</p>
                 </div>
             </div>
         `;
@@ -139,7 +148,7 @@ function renderAdmin() {
         if(item.status !== 'Selesai') {
             actionButton = `<button class="action-btn btn-resolve" onclick="markSolved(${item.id})">Selesai</button>`;
         } else {
-            actionButton = `<span style="color:green;">✔ Done</span>`;
+            actionButton = `<span class="status-done-text">✔ Done</span>`;
         }
 
         const row = `
@@ -194,13 +203,12 @@ if (loginForm) {
                 alert("Login Berhasil sebagai Admin!");
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('username', usernameVal);
-                window.location.href = 'admin.html';
+                window.top.location.href = 'admin.html';
             } else {
-                // User biasa
                 alert(`Selamat datang, ${usernameVal}!`);
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('username', usernameVal);
-                window.location.href = '../index.html'; 
+                window.top.location.href = '../index.html';
             }
         } catch (error) {
             alert("Login Gagal.");
@@ -234,7 +242,7 @@ if (registerForm) {
             await new Promise(r => setTimeout(r, 800));
 
             alert("Registrasi Berhasil! Silakan Login dengan akun baru Anda.");
-            window.location.href = 'login.html';
+            window.top.location.href = './pages/login.html';
 
         } catch (error) {
             alert("Gagal Mendaftar.");
@@ -247,16 +255,18 @@ if (registerForm) {
 
 
 const username = localStorage.getItem('username');
-const currentPath = window.location.pathname;
+const currentPath = window.top.location.pathname;
 
 const isAuthPage = currentPath.includes('login.html') || currentPath.includes('register.html');
 
 if (!username && !isAuthPage) {
-    alert("Anda harus login untuk mengakses aplikasi ini!");
-    if (currentPath.includes('/pages/')) {
-        window.location.href = 'login.html';
-    } else {
-        window.location.href = './pages/login.html';
+    if (window.self === window.top) { 
+        alert("Anda harus login untuk mengakses aplikasi ini!");
+        if (currentPath.includes('/pages/')) {
+            window.top.location.href = 'login.html';
+        } else {
+            window.top.location.href = './pages/login.html';
+        }
     }
 }
 
@@ -272,11 +282,7 @@ if (username && !isAuthPage) {
             
             if (confirm("Yakin ingin keluar?")) {
                 localStorage.clear(); 
-                if (currentPath.includes('/pages/')) {
-                    window.location.href = 'login.html';
-                } else {
-                    window.location.href = './pages/login.html';
-                }
+                window.top.location.href = './pages/login.html';
             }
         });
     }
@@ -284,17 +290,25 @@ if (username && !isAuthPage) {
 
 const inputFoto = document.getElementById('fotoBarang');
 const previewFoto = document.getElementById('preview');
+const contohGambar = document.getElementById('contohGambar');
+const pElement = document.getElementById('p');
 
-inputFoto.addEventListener('change', function() {
-  const file = this.files[0];
+if (inputFoto) {
+    inputFoto.addEventListener('change', function() {
+        const file = this.files[0];
 
-  if (file) {
-    const urlGambar = URL.createObjectURL(file);
+        if (file) {
+            const urlGambar = URL.createObjectURL(file);
 
-    previewFoto.src = urlGambar;
+            previewFoto.src = urlGambar;
 
-    previewFoto.style.display = 'block';
+            previewFoto.style.display = 'block';
 
-    previewFoto.hidden = false;
-  }
-});
+            previewFoto.hidden = false;
+
+            contohGambar.hidden = true;
+
+            pElement.hidden = true;
+        }
+    });
+}

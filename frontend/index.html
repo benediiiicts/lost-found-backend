@@ -8,16 +8,7 @@
 </head>
 <body>
     
-    <nav>
-        <a href="index.html" class="logo">Lost & Found</a>
-        <div class="nav-links">
-            <a href="index.html" class="active">Beranda</a>
-            <a href="./pages/report.html">Lapor Barang</a>
-            <a href="./pages/dashboard.html">Laporan Saya</a>
-            <a href="./pages/admin.html">Admin Panel</a>
-            <a href="#" class="btn-login btn-logout">Logout</a>
-        </div>
-    </nav>
+    <iframe src="./header.html" class="navbar-frame"></iframe>
 
     <div class="container">
         <div class="hero">
@@ -25,8 +16,8 @@
             <p>Platform informasi barang hilang di lingkungan kampus.</p>
             
             <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Cari nama barang..." onkeyup="renderItems()">
-                <select id="filterType" onchange="renderItems()" style="width: 150px;">
+                <input type="text" id="searchInput" placeholder="Cari nama barang...">
+                <select id="filterType" class="filter-select">
                     <option value="all">Semua</option>
                     <option value="lost">Kehilangan</option>
                     <option value="found">Ditemukan</option>

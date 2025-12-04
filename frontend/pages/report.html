@@ -8,20 +8,11 @@
 </head>
 <body>
 
-    <nav>
-        <a href="../index.html" class="logo">Lost & Found</a>
-        <div class="nav-links">
-            <a href="../index.html">Beranda</a>
-            <a href="./report.html" class="active">Lapor Barang</a>
-            <a href="./dashboard.html">Laporan Saya</a>
-            <a href="./admin.html">Admin Panel</a>
-            <a href="#" class="btn-login btn-logout">Logout</a>
-        </div>
-    </nav>
+    <iframe src="../header.html" class="navbar-frame"></iframe>
 
     <div class="container">
         <div class="form-container">
-            <h2 style="margin-bottom: 20px; text-align: center;">Buat Laporan Baru</h2>
+            <h2 class="report-title">Buat Laporan Baru</h2>
             <form id="reportForm">
                 <div class="form-group">
                     <label>Jenis Laporan</label>
@@ -45,6 +36,8 @@
                 <div class="form-group">
                     <label>Foto Barang</label>
                     <input type="file" id="fotoBarang" placeholder="Foto Barang">
+                    <p id="p">Contoh Gambar:</p>
+                    <img id="contohGambar" src="../gambar/cat5.jpg" alt="">
                     <img hidden="true" id="preview" src="" alt="">
                 </div>
                 <button type="submit" class="btn-submit">Kirim Laporan</button>
