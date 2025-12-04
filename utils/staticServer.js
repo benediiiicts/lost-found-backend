@@ -22,9 +22,17 @@ export const serveFile = (response, fullPath, contentType) => {
 
 export const servePageWithHeader = (res, pagePath, currentUser) => {
     try {
-        const headerPath = path.join(PUBLIC_DIR, "pages", "header.html");
-        const headerContent = fs.readFileSync(headerPath, "utf-8");
+        let headerPath;
+        let headerContent;
 
+        if(currentUser.role === "admin") {
+            headerPath = path.join(PUBLIC_DIR, "pages", "headerAdmin.html");
+            headerContent = fs.readFileSync(headerPath, "utf-8");
+        }else {
+            headerPath = path.join(PUBLIC_DIR, "pages", "header.html");
+            headerContent = fs.readFileSync(headerPath, "utf-8");
+        }
+        
         const pageContent = fs.readFileSync(pagePath, "utf-8");
 
         const finalHtml = pageContent.replace("", headerContent);

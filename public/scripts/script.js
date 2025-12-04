@@ -130,8 +130,8 @@ function renderItems(data) {
                 <div class="card-body">
                     <span class="status-badge ${badgeClass}">${badgeText}</span>
                     <h3 class="card-title">${item.nama_barang}</h3>
-                    <p class="card-info">📍 ${item.lokasi}</p>
-                    <p class="card-info">📅 ${dateStr}</p>
+                    <p class="card-info">${item.lokasi}</p>
+                    <p class="card-info">${dateStr}</p>
                     <p class="card-desc-text">"${item.deskripsi}"</p>
                     <small>Oleh: ${item.pelapor_name || 'Anonim'}</small>
                 </div>
