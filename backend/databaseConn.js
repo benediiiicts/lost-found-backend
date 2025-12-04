@@ -18,5 +18,4 @@ pool.connect((err, client, release) => {
     return console.error('Error akuisisi client', err.stack);
   }
   console.log('Berhasil terhubung ke database saat inisialisasi!');
-  release(); // Jangan lupa lepaskan client kembali ke pool
 });
