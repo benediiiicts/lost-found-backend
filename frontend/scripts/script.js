@@ -1,7 +1,6 @@
 const currentUser = "Budi";
 const STORAGE_KEY = 'lostFoundData';
 
-//Data dummy
 const defaultData = [
     { id: 1, user: "Budi", type: "lost", name: "Helm Bogo Hitam", loc: "Ruang LabKom 9017", date: "2023-10-01", status: "Hilang", desc: "Ada stiker Apple di belakang" },
     { id: 2, user: "Admin", type: "found", name: "KTM An. Kristiadi", loc: "Ruang LabKom 9015", date: "2023-10-02", status: "Ditemukan", desc: "Ditemukan di meja nomor 5" },
