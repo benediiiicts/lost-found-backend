@@ -342,3 +342,8 @@ textarea:focus {
     margin-bottom: 20px;
     text-align: center;
 }
+
+#preview, #contohGambar {
+    width: 60%;
+    height: 50%;
+}
