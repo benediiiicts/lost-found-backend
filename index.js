@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from 'url';
 import pool from "./db.js"; // Import koneksi database
+import jwt from 'jsonwebtoken';
 
 // --- KONFIGURASI PATH ---
 const __filename = fileURLToPath(import.meta.url);
@@ -91,15 +92,31 @@ server.on("request", async (request, response) => {
                 // Cek Password (Idealnya di-hash, tapi sesuai request kita plain dulu/sesuai input)
                 if (user.password === password) {
                     const newSessionId = crypto.randomBytes(32).toString("hex");
+
+                    
                     // Simpan data penting di session server
                     SESSIONS.set(newSessionId, { 
                         id_user: user.id_user, 
                         username: user.username, 
                         role: user.role 
                     });
-
-                    response.setHeader("Set-Cookie", `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/`);
+                    
+                    const accessToken = jwt.sign(
+                        { newSessionId, user: user.username, role: user.role },    // Payload (Data yang disimpan dalam token)
+                        process.env.JWT_SECRET,     // Secret Key dari .env
+                        { expiresIn: '1h' }         // Token kadaluarsa dalam 1 jam
+                    );
+                    response.setHeader("Set-Cookie", [
+                        `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/`,
+                        `token=${accessToken}; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/`
+                    ]);
                     response.writeHead(200, { "Content-Type": "application/json" });
+
+                    if(user.role === "admin") { 
+                        const navAdmin = document.getElementById("navAdmin");
+                        navAdmin.hidden=false;
+                    }
+                    
                     return response.end(JSON.stringify({ 
                         success: true, 
                         redirectUrl: user.role === "admin" ? "/adminpanel" : "/beranda" 

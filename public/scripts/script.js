@@ -283,3 +283,6 @@ if (inputFoto && previewFoto) {
         }
     });
 }
+
+  // Panggil fungsi
+  checkUserRole();
