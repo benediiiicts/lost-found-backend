@@ -1,6 +1,5 @@
 import pg from 'pg';
-import 'dotenv/config'; // Baris ini WAJIB ada di paling atas untuk load .env
-
+import 'dotenv/config'; 
 const { Pool } = pg;
 
 const pool = new Pool({
@@ -11,7 +10,6 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-// Cek koneksi (Opsional, agar tahu kalau gagal connect)
 pool.connect((err) => {
     if (err) {
         console.error('Koneksi Database GAGAL:', err.message);
