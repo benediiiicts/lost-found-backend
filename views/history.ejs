@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Saya - Lost & Found</title>
+
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+    <nav>
+        <a href="/" class="logo">
+            <img src="/gambar/Logo.png" alt="Lost & Found Logo">
+        </a>
+
+        <div class="nav-links">
+            <a href="/">Beranda</a>
+            <a href="/laporan">Lapor Barang</a>
+            <a href="/history">Laporan Saya</a>
+
+            <a href="/logout" class="btn-login btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="page-title">Laporan Saya</h2>
+
+        <div class="table-wrapper">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>Pelapor</th>
+                        <th>Barang</th>
+                        <th>Gambar</th>
+                        <th>Deskripsi</th>
+                        <th>Lokasi</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% if (items && items.length > 0) { %>
+                        <% items.forEach(item => { %>
+                            <tr>
+                                <td><%= item.nama_pelapor %></td>
+                                <td><%= item.nama_barang %></td>
+                                <td>
+                                    <% if (item.gambar) { %>
+                                        <img src="/uploads/<%= item.gambar %>" alt="gambar" style="height: 60px;">
+                                    <% } else { %>
+                                        -
+                                    <% } %>
+                                </td>
+                                <td><%= item.deskripsi %></td>
+                                <td><%= item.lokasi %></td>
+                                <td><%= item.status %></td>
+                                <td>
+                                    <a href="/edit/<%= item.id %>" class="btn-edit">Edit</a>
+                                    <a href="/hapus/<%= item.id %>" class="btn-delete">Hapus</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Tidak ada laporan.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/scripts/script.js"></script>
+</body>
+</html>
