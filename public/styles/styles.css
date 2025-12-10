@@ -77,13 +77,6 @@ nav {
     font-weight: bold;
 }
 
-.welcome-message {
-    margin-right: 20px;
-    font-size: 1rem;
-    color: var(--primary-color);
-    font-weight: bold;
-}
-
 .btn-login {
     background-color: var(--primary-color) !important;
     color: white !important;
