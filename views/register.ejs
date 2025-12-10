@@ -14,20 +14,20 @@
             <p>Buat akun untuk mulai melapor.</p>
         </div>
 
-        <form id="registerForm">
+        <form id="registerForm" method="POST" action="/register">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="regUsername" placeholder="Buat username" required>
+                <input type="text" id="regUsername" name="username" placeholder="Buat username" required>
             </div>
             
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="regPassword" placeholder="Buat password" required>
+                <input type="password" id="regPassword" name="password" placeholder="Buat password" required>
             </div>
 
             <div class="form-group">
                 <label>Konfirmasi Password</label>
-                <input type="password" id="regConfirmPassword" placeholder="Ulangi password" required>
+                <input type="password" id="regConfirmPassword" name="confirmPassword" placeholder="Ulangi password" required>
             </div>
 
             <button type="submit" class="btn-submit">Daftar Sekarang</button>
