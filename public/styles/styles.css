@@ -347,3 +347,16 @@ textarea:focus {
     width: 60%;
     height: 50%;
 }
+
+.halo-user {
+    margin-right: 20px; 
+    margin-left: 20px; 
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    border-left: 2px solid #ddd;
+    padding-left: 20px; 
+    display: inline-flex;
+    align-items: center;
+    height: 100%; 
+}
