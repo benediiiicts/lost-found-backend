@@ -1,6 +1,9 @@
 import http from "node:http";
 import fs from "fs";
 import path from "path";
+import zlib from "zlib";
+import { minify } from "terser";
+import CleanCSS from "clean-css";
 
 import { handleLogin, handleLogout, handleRegister } from "./controllers/authController.js";
 import { renderHomePage } from "./controllers/homeController.js";
@@ -14,6 +17,7 @@ import { readBody } from "./utils/utility.js";
 
 const server = new http.Server();
 const SESSIONS = new Map();
+const cssMinifier = new CleanCSS()
 
 // ------------------------------
 // STATIC FILES
@@ -35,7 +39,7 @@ server.on("request", async (req, res) => {
     ) {
         const filePath = path.join(publicPath, pathname);
 
-        fs.readFile(filePath, (err, data) => {
+        fs.readFile(filePath, async (err, data) => {
             if (err) {
                 res.writeHead(404);
                 return res.end("File not found");
@@ -48,8 +52,44 @@ server.on("request", async (req, res) => {
             if (pathname.endsWith(".jpg") || pathname.endsWith(".jpeg"))
                 contentType = "image/jpeg";
 
-            res.writeHead(200, { "Content-Type": contentType });
-            res.end(data);
+            const acceptEncoding = req.headers['accept-encoding'] || "";
+            const isCompressible = contentType === "text/css" || contentType === "application/javascript";
+            let dataToSend = data;
+
+            if (contentType === "application/javascript") {
+                const minifiedResult = await minify(data.toString());
+                if (minifiedResult.code) {
+                    dataToSend = Buffer.from(minifiedResult.code);
+                    console.log("JS MINIFIED");
+                }
+            } 
+            else if (contentType === "text/css") {
+                const minifiedResult = cssMinifier.minify(data.toString());
+                if (minifiedResult.styles) {
+                    dataToSend = Buffer.from(minifiedResult.styles);
+                    console.log("CSS MINIFIED");
+                }
+            }
+
+            if (acceptEncoding.includes('gzip') && isCompressible) {
+                zlib.gzip(dataToSend, (err, buffer) => {
+                    if (err) {
+                        console.error("Gzip error:", err);
+                        res.writeHead(200, { "Content-Type": contentType });
+                        res.end(data);
+                        return;
+                    }
+
+                    res.writeHead(200, {
+                        "Content-Type": contentType,
+                        "Content-Encoding": "gzip"
+                    });
+                    res.end(buffer);
+                });
+            } else {
+                res.writeHead(200, { "Content-Type": contentType });
+                res.end(dataToSend);
+            }
         });
 
         return;
@@ -93,8 +133,7 @@ server.on("request", async (req, res) => {
             break;
 
         case "/logout":
-            if (sessionId) handleLogout(sessionId);
-            res.writeHead(302, { location: "/login" });
+            if (sessionId) handleLogout(req, res, sessionId, SESSIONS);
             return res.end();
 
         case "/":
@@ -133,8 +172,29 @@ server.on("request", async (req, res) => {
             return renderAdminPage(req, res, SESSIONS.get(sessionId));
 
         default:
-            res.statusCode = 404;
-            res.end("Route not found");
+            let message = "Route not found";
+
+            const acceptEncoding = req.headers['accept-encoding'] || "";
+
+            if (acceptEncoding.includes('gzip')) {
+                zlib.gzip(message, (error, buffer) => {
+                    if (error) {
+                        console.error("Compression Error:", error);
+                        res.writeHead(404, { "Content-Type": "text/html" });
+                        return res.end(message);
+                    }
+    
+                    res.writeHead(404, { 
+                        "Content-Type": "text/html",
+                        "Content-Encoding": "gzip"
+                    });
+                    res.end(buffer);
+                });
+
+            }else {
+                res.writeHead(404, { "Content-Type": "text/html" });
+                res.end(message);
+            }
     }
 });
 
