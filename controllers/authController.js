@@ -43,7 +43,7 @@ export const handleRegister = async (req, res, SESSIONS) => {
     }
 };
 
-export const handleLogout = (req, res, sessionId) => {
+export const handleLogout = (req, res, sessionId, SESSIONS) => {
     if (sessionId) SESSIONS.delete(sessionId);
     res.setHeader("Set-Cookie", `session_id=; HttpOnly; Max-Age=0; Path=/`);
     res.setHeader("Location", "/login");
