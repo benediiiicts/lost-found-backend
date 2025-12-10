@@ -56,19 +56,25 @@ server.on("request", async (req, res) => {
             const isCompressible = contentType === "text/css" || contentType === "application/javascript";
             let dataToSend = data;
 
-            if (contentType === "application/javascript") {
-                const minifiedResult = await minify(data.toString());
-                if (minifiedResult.code) {
-                    dataToSend = Buffer.from(minifiedResult.code);
-                    console.log("JS MINIFIED");
+            try {
+                if (contentType === "application/javascript") {
+                    const minifiedResult = await minify(data.toString());
+                    
+                    if (minifiedResult.code) {
+                        dataToSend = Buffer.from(minifiedResult.code);
+                        console.log("JS Minified");
+                    }
+                } 
+                else if (contentType === "text/css") {
+                    const minifiedResult = cssMinifier.minify(data.toString());
+                    
+                    if (minifiedResult.styles) {
+                        dataToSend = Buffer.from(minifiedResult.styles);
+                        console.log("CSS Minified");
+                    }
                 }
-            } 
-            else if (contentType === "text/css") {
-                const minifiedResult = cssMinifier.minify(data.toString());
-                if (minifiedResult.styles) {
-                    dataToSend = Buffer.from(minifiedResult.styles);
-                    console.log("CSS MINIFIED");
-                }
+            } catch (minifyError) {
+                console.error("Gagal minifikasi (akan mengirim data original):", minifyError);
             }
 
             if (acceptEncoding.includes('gzip') && isCompressible) {
