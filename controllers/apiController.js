@@ -28,8 +28,8 @@ export const postLaporan = (req, res, currentUser) => {
 
     const form = formidable({
         uploadDir: path.join(process.cwd(), "public/gambar"), 
-        keepExtensions: true, 
-        maxFileSize: 5 * 1024 * 1024, 
+        keepExtensions: true,
+        maxFileSize: 5 * 1024 * 1024,
         allowEmptyFiles: false,
         filter: function ({mimetype}) {
             return mimetype && mimetype.includes("image");
