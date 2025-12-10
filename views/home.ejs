@@ -15,6 +15,9 @@
         </a>
 
         <div class="nav-links">
+            <% if (user && user.username) { %>
+                <span class="welcome-message">Halo, <%= user.username %></span>
+            <% } %>
             <a href="/">Beranda</a>
             <a href="/laporan">Lapor Barang</a>
             <a href="/history">Laporan Saya</a>
