@@ -14,7 +14,7 @@ export const renderLaporanPage = async (req, res, currentUser) => {
 
         ejs.renderFile(
             filePath,
-            {},
+            { user: currentUser },
             (err, html) => {
                 if (err) {
                     console.error(err);
