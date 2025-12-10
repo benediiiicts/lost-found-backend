@@ -35,8 +35,8 @@ export const handleRegister = async (req, res, SESSIONS) => {
     const { username, password } = await readBody(req);
     try {
         await pool.query('INSERT INTO users (username, password, role) VALUES ($1, $2, $3)', [username, password, 'pelapor']);
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ success: true }));
+        res.writeHead(302, { "Location": "/login" });
+        res.end();
     } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: false, message: "Username sudah dipakai" }));
