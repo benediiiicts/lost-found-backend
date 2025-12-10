@@ -1,104 +1,143 @@
 import http from "node:http";
-import path from "node:path";
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
 
+import { handleLogin, handleLogout, handleRegister } from "./controllers/authController.js";
+import { renderHomePage } from "./controllers/homeController.js";
+import { postLaporan, renderLaporanPage } from "./controllers/laporanController.js";
+import { renderHistoryPage } from "./controllers/historyController.js";
+import { renderAdminPage } from "./controllers/adminController.js";
+import { renderLoginPage } from "./controllers/loginController.js";
+import { renderRegisterPage } from "./controllers/registerController.js";
+import { readBody } from "./utils/utility.js";
 
-import { serveFile, servePageWithHeader } from "./utils/staticServer.js"; 
-import { getCookie } from "./utils/httpData.js";
-import { SESSIONS } from "./utils/sessionStore.js";
-import * as Auth from "./controllers/authController.js";
-import * as Api from "./controllers/apiController.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PUBLIC_DIR = path.join(__dirname, "public");
 
 const server = new http.Server();
+const SESSIONS = new Map();
 
+// ------------------------------
+// STATIC FILES
+// ------------------------------
+const publicPath = path.join(process.cwd(), "public");
+
+
+// ------------------------------
 server.on("request", async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = url.pathname;
     const method = req.method;
 
-    const sessionId = getCookie(req, "session_id");
-    let currentUser = null;
-    if (sessionId && SESSIONS.has(sessionId)) {
-        currentUser = SESSIONS.get(sessionId);
+    // STATIC
+    if (
+        pathname.startsWith("/styles/") ||
+        pathname.startsWith("/scripts/") ||
+        pathname.startsWith("/gambar/")
+    ) {
+        const filePath = path.join(publicPath, pathname);
+
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                return res.end("File not found");
+            }
+
+            let contentType = "text/plain";
+            if (pathname.endsWith(".css")) contentType = "text/css";
+            if (pathname.endsWith(".js")) contentType = "application/javascript";
+            if (pathname.endsWith(".png")) contentType = "image/png";
+            if (pathname.endsWith(".jpg") || pathname.endsWith(".jpeg"))
+                contentType = "image/jpeg";
+
+            res.writeHead(200, { "Content-Type": contentType });
+            res.end(data);
+        });
+
+        return;
     }
 
-    console.log(`[${method}] ${pathname} | User: ${currentUser ? currentUser.username : 'Guest'}`);
+    // ------------------------------
+    // SESSION CHECK (simple)
+    // ------------------------------
+    const rawCookie = req.headers.cookie; 
+    let sessionId = null;
 
-
-    if (pathname === "/auth/login" && method === "POST") return Auth.handleLogin(req, res);
-    if (pathname === "/auth/register" && method === "POST") return Auth.handleRegister(req, res);
-    if (pathname === "/logout") return Auth.handleLogout(req, res, sessionId);
-
-    if (pathname === "/api/laporan") {
-        if (method === "GET") return Api.getLaporan(req, res, url, currentUser);
-        if (method === "POST") return Api.postLaporan(req, res, currentUser);
+    if (rawCookie) {
+        const cookies = rawCookie.split("; ");
+        for (const cookie of cookies) {
+            const [name, value] = cookie.split("=");
+            if (name === "session_id") {
+                sessionId = value;
+                break;
+            }
+        }
     }
-    if (pathname.startsWith("/api/laporan/") && pathname.length > 13) {
-        const idLaporan = pathname.split("/")[3];
-        if (!currentUser) return res.end();
-        
-        if (method === "DELETE") return Api.deleteLaporan(res, idLaporan);
-        if (method === "PUT") return Api.updateLaporanStatus(res, idLaporan);
-    }
+    const isLoggedIn = sessionId && SESSIONS.has(sessionId);
 
-    if (pathname.startsWith("/styles/") || pathname.startsWith("/scripts/") || pathname.startsWith("/gambar/")) {
-        const mimeTypes = {
-            ".css": "text/css",
-            ".js": "application/javascript",
-            ".jpg": "image/jpeg",
-            ".png": "image/png"
-        };
-        const ext = path.extname(pathname);
-        const filePath = path.join(PUBLIC_DIR, pathname); 
-        return serveFile(res, filePath, mimeTypes[ext] || "text/plain");
-    }
+    console.log(`[${method}] ${pathname} | Session: ${isLoggedIn ? sessionId : "NONE"}`);
 
-    if (pathname === "/") {
-        res.setHeader("Location", currentUser ? "/beranda" : "/login");
-        res.statusCode = 302;
-        return res.end();
-    }
-    
-    if (pathname === "/login" || pathname === "/register") {
-        if (currentUser) {
-            res.setHeader("Location", "/beranda");
-            res.statusCode = 302;
+    // ------------------------------
+    // ROUTING
+    // ------------------------------
+    switch (pathname) {
+
+        case "/login":
+            if (method === "POST") {
+                return handleLogin(req, res, SESSIONS);
+            }
+            if (method === "GET") return renderLoginPage(req, res);
+            break;
+
+        case "/register":
+            if (method === "POST") return handleRegister(req, res, SESSIONS);
+            if (method === "GET") return renderRegisterPage(req, res);
+            break;
+
+        case "/logout":
+            if (sessionId) handleLogout(sessionId);
+            res.writeHead(302, { location: "/login" });
             return res.end();
-        }
-        return serveFile(res, path.join(PUBLIC_DIR, "pages", `${pathname}.html`), "text/html");
-    }
 
-    if (["/beranda", "/pelaporan", "/laporansaya"].includes(pathname)) {
-        if (!currentUser) {
-            res.setHeader("Location", "/login");
-            res.statusCode = 302;
-            return res.end();
-        }
-        const fileMap = {
-            "/beranda": "index.html",
-            "/pelaporan": "report.html",
-            "/laporansaya": "dashboard.html"
-        };
-        const fullPath = path.join(PUBLIC_DIR, "pages", fileMap[pathname]);
-        return servePageWithHeader(res, fullPath, currentUser);
-    }
+        case "/":
+            if (!isLoggedIn) {
+                res.writeHead(302, { location: "/login" });
+                return res.end();
+            }
+            return renderHomePage(req, res, SESSIONS.get(sessionId));
 
-    if (pathname === "/adminpanel") {
-        if (currentUser && currentUser.role === "admin") {
-            return servePageWithHeader(res, path.join(PUBLIC_DIR, "pages", "admin.html"), currentUser);
-        }
-        res.statusCode = 403;
-        return res.end("Forbidden");
-    }
+        case "/laporan":
+            if (!isLoggedIn) {
+                res.writeHead(302, { location: "/login" });
+                return res.end();
+            }
 
-    res.statusCode = 404;
-    res.end("Not Found");
+            if (method === "GET")
+                return renderLaporanPage(req, res, SESSIONS.get(sessionId));
+
+            if (method === "POST")
+                return postLaporan(req, res, SESSIONS.get(sessionId));
+
+            break;
+
+        case "/history":
+            if (!isLoggedIn) {
+                res.writeHead(302, { location: "/login" });
+                return res.end();
+            }
+            return renderHistoryPage(req, res, SESSIONS.get(sessionId));
+
+        case "/admin":
+            if (!isLoggedIn || SESSIONS.get(sessionId).role !== "admin") {
+                res.writeHead(302, { location: "/login" });
+                return res.end();
+            }
+            return renderAdminPage(req, res, SESSIONS.get(sessionId));
+
+        default:
+            res.statusCode = 404;
+            res.end("Route not found");
+    }
 });
 
-server.listen({ host: "127.0.0.1", port: 8000 }, () => {
+server.listen(8000, () => {
     console.log("Server berjalan di http://127.0.0.1:8000");
 });

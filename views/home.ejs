@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda - Lost & Found</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+    <nav>
+        <a href="/beranda" class="logo">
+            <img src="/gambar/Logo.png" alt="Lost & Found Logo">
+        </a>
+
+        <div class="nav-links">
+            <a href="/">Beranda</a>
+            <a href="/laporan">Lapor Barang</a>
+            <a href="/history">Laporan Saya</a>
+
+            <a href="/logout" class="btn-login btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Cari Barang Hilang & Temuan</h1>
+            <p>Platform informasi barang hilang di lingkungan kampus.</p>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Cari nama barang...">
+                <select id="filterType" class="filter-select">
+                    <option value="all">Semua</option>
+                    <option value="lost">Kehilangan</option>
+                    <option value="found">Ditemukan</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="items-grid" id="itemsContainer">
+            <% if (items && items.length > 0) { %>
+                <% items.forEach(item => { %>
+                    <div class="item-card">
+                        <img src="<%= item.foto_barang %>" alt="Foto Barang">
+
+                        <div class="item-info">
+                            <h3><%= item.nama_barang %></h3>
+                            <p class="type <%= item.tipe_laporan %>">
+                                <%= item.tipe_laporan === "kehilangan" ? "Kehilangan" : "Ditemukan" %>
+                            </p>
+                            <p><strong>Lokasi:</strong> <%= item.lokasi %></p>
+                            <p><%= item.deskripsi %></p>
+                            <p class="date"><%= item.created_at.toLocaleDateString("id-ID") %></p>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p style="text-align:center; margin-top:20px;">Belum ada laporan.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="/scripts/script.js"></script>
+</body>
+
+</html>
