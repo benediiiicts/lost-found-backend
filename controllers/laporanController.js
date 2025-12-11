@@ -73,13 +73,13 @@ export const postLaporan = (req, res, currentUser) => {
         }
 
         try {
-            const typeVal = Array.isArray(fields.type) ? fields.type[0] : fields.type;
-            const nameVal = Array.isArray(fields.name) ? fields.name[0] : fields.name;
-            const locVal = Array.isArray(fields.loc) ? fields.loc[0] : fields.loc;
-            const descVal = Array.isArray(fields.desc) ? fields.desc[0] : fields.desc;
+            const typeVal = Array.isArray(fields.reportType) ? fields.reportType[0] : fields.reportType;
+            const nameVal = Array.isArray(fields.itemName) ? fields.itemName[0] : fields.itemName;
+            const locVal = Array.isArray(fields.itemLocation) ? fields.itemLocation[0] : fields.itemLocation;
+            const descVal = Array.isArray(fields.itemDesc) ? fields.itemDesc[0] : fields.itemDesc;
 
             let fotoPath = "/gambar/cat4.jpg";
-            const uploadedFile = files.foto ? (Array.isArray(files.foto) ? files.foto[0] : files.foto) : null;
+            const uploadedFile = files.fotoBarang ? (Array.isArray(files.fotoBarang) ? files.fotoBarang[0] : files.foto) : null;
 
             if (uploadedFile) {
                 fotoPath = `/gambar/${uploadedFile.newFilename}`;
@@ -93,8 +93,7 @@ export const postLaporan = (req, res, currentUser) => {
                 [currentUser.id_user, tipe, nameVal, locVal, descVal, fotoPath]
             );
 
-            // 🔥 Setelah insert, redirect ke halaman laporan
-            res.writeHead(302, { Location: "/laporan" });
+            res.writeHead(302, { Location: "/home" });
             res.end();
 
         } catch (dbErr) {
