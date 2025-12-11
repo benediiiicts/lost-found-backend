@@ -51,3 +51,58 @@ export const renderAdminPage = async (req, res, currentUser) => {
         res.end("Database error");
     }
 };
+
+
+export const deleteLaporanAdmin = async (req, res, currentUser,id_laporan) => {
+    try {
+        await pool.query(
+            `DELETE FROM laporan WHERE id_laporan = $1`,
+            [id_laporan]
+        );
+
+        const result = await pool.query(
+            `SELECT * FROM laporan ORDER BY created_at DESC`,
+            []
+        );
+
+        const filePath = path.join(__dirname, "..", "views", "admin.ejs");
+
+        ejs.renderFile(
+            filePath,
+            { items: result.rows, user: currentUser },
+            (err, html) => {
+                if (err) {
+                    console.error(err);
+                    res.writeHead(500);
+                    return res.end("EJS Error: " + err);
+                }
+
+                const acceptEncoding = req.headers['accept-encoding'] || "";
+                
+                if (acceptEncoding.includes('gzip')) {
+                    zlib.gzip(html, (error, buffer) => {
+                        if (error) {
+                            console.error("Compression Error:", error);
+                            res.writeHead(200, { "Content-Type": "text/html" });
+                            return res.end(html);
+                        }
+
+                        res.writeHead(200, {
+                            "Content-Type": "text/html",
+                            "Content-Encoding": "gzip"
+                        });
+                        res.end(buffer);
+                    });
+                } else {
+                    res.writeHead(200, { "Content-Type": "text/html" });
+                    res.end(html);
+                }
+            }
+        );
+
+    } catch (err) {
+        console.error("DB ERROR:", err);
+        res.writeHead(500);
+        res.end("Database error");
+    }
+};
