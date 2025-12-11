@@ -26,6 +26,12 @@
             </div>
 
             <button type="submit" class="btn-submit">Masuk</button>
+
+            <% if (success === false) { %>
+                <div id="alert-info">
+                    <%= message %>
+                </div>
+            <% } %>
         </form>
 
         <div class="login-footer">

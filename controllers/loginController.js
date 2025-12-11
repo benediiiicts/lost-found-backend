@@ -11,7 +11,7 @@ export const renderLoginPage = async (req, res) => {
         const filePath = path.join(__dirname, "..", "views", "login.ejs");
         ejs.renderFile(
             filePath,
-            {},
+            { success : true },
             (err, html) => {
                 if (err) {
                     console.error(err);

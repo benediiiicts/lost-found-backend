@@ -15,6 +15,7 @@
         </a>
 
         <div class="nav-links">
+            <span class="halo-user">
                 Halo, <%= user.username %>
             </span>
             <a href="/logout" class="btn-login btn-logout">Logout</a>
@@ -55,7 +56,6 @@
                                 <td><%= item.lokasi %></td>
                                 <td><%= item.status %></td>
                                 <td>
-                                    <!-- Admin actions -->
                                     <a href="/admin/edit/<%= item.id %>" class="btn-edit">Edit</a>
                                     <a href="/admin/delete/<%= item.id %>" class="btn-delete">Hapus</a>
                                 </td>
