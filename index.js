@@ -4,6 +4,7 @@ import path from "path";
 import zlib from "zlib";
 import { minify } from "terser";
 import CleanCSS from "clean-css";
+import { Readable } from 'stream';
 
 import { handleLogin, handleLogout, handleRegister } from "./controllers/authController.js";
 import { renderHomePage } from "./controllers/homeController.js";
@@ -53,7 +54,7 @@ server.on("request", async (req, res) => {
                 contentType = "image/jpeg";
 
             const acceptEncoding = req.headers['accept-encoding'] || "";
-            const isCompressible = contentType === "text/css" || contentType === "application/javascript";
+            const isCompressible = contentType === "text/css" || contentType === "application/javascript" || contentType === "image/jpeg" || contentType === "image/png";
             let dataToSend = data;
 
             try {
@@ -77,21 +78,15 @@ server.on("request", async (req, res) => {
                 console.error("Gagal minifikasi (akan mengirim data original):", minifyError);
             }
 
-            if (acceptEncoding.includes('gzip') && isCompressible) {
-                zlib.gzip(dataToSend, (err, buffer) => {
-                    if (err) {
-                        console.error("Gzip error:", err);
-                        res.writeHead(200, { "Content-Type": contentType });
-                        res.end(data);
-                        return;
-                    }
+            const streamToSend = Readable.from(dataToSend);
 
-                    res.writeHead(200, {
-                        "Content-Type": contentType,
-                        "Content-Encoding": "gzip"
-                    });
-                    res.end(buffer);
+            if (acceptEncoding.includes('gzip') && isCompressible) {
+                res.writeHead(200, {
+                    "Content-Type": contentType,
+                    "Content-Encoding": "gzip"
                 });
+
+                streamToSend.pipe(zlib.createGzip()).pipe(res);
             } else {
                 res.writeHead(200, { "Content-Type": contentType });
                 res.end(dataToSend);
