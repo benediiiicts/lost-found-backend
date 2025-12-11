@@ -56,7 +56,7 @@ export const renderAdminPage = async (req, res, currentUser) => {
 export const deleteLaporanAdmin = async (req, res, currentUser,id_laporan) => {
     try {
         await pool.query(
-            `DELETE FROM laporan WHERE id_laporan = $1`,
+            `UPDATE laporan SET status = 'Selesai' WHERE id_laporan = $1`,
             [id_laporan]
         );
 
