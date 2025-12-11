@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import formidable from "formidable";
 import zlib from "zlib";
+import { Readable } from 'stream';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,20 +25,17 @@ export const renderLaporanPage = async (req, res, currentUser) => {
 
                 const acceptEncoding = req.headers['accept-encoding'] || "";
                                                 
+                const streamToSend = Readable.from(html);
+                                
                 if (acceptEncoding.includes('gzip')) {
-                    zlib.gzip(html, (error, buffer) => {
-                        if (error) {
-                            console.error("Compression Error:", error);
-                            res.writeHead(200, { "Content-Type": "text/html" });
-                            return res.end(html);
-                        }
+                    res.writeHead(200, {
+                    "Content-Type": "text/html",
+                    "Content-Encoding": "gzip"
+                });
 
-                        res.writeHead(200, { 
-                            "Content-Type": "text/html",
-                            "Content-Encoding": "gzip"
-                        });
-                        res.end(buffer);
-                    });
+                streamToSend
+                    .pipe(zlib.createGzip())
+                    .pipe(res);
                 } else {
                     res.writeHead(200, { "Content-Type": "text/html" });
                     res.end(html);
