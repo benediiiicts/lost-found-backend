@@ -125,7 +125,7 @@ server.on("request", async (req, res) => {
         }
 
         const id = pathname.split("/")[2];
-        return deleteLaporanAdmin(req, res, SESSIONS.get(sessionId));
+        return deleteLaporan(req, res, SESSIONS.get(sessionId), id);
     }
 
     if (pathname.startsWith("/admin/delete/") && method === "GET") {

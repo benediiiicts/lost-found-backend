@@ -78,21 +78,17 @@ export const deleteLaporanAdmin = async (req, res, currentUser,id_laporan) => {
                 }
 
                 const acceptEncoding = req.headers['accept-encoding'] || "";
-                
+                const streamToSend = Readable.from(html);
+                                
                 if (acceptEncoding.includes('gzip')) {
-                    zlib.gzip(html, (error, buffer) => {
-                        if (error) {
-                            console.error("Compression Error:", error);
-                            res.writeHead(200, { "Content-Type": "text/html" });
-                            return res.end(html);
-                        }
+                    res.writeHead(200, {
+                    "Content-Type": "text/html",
+                    "Content-Encoding": "gzip"
+                });
 
-                        res.writeHead(200, {
-                            "Content-Type": "text/html",
-                            "Content-Encoding": "gzip"
-                        });
-                        res.end(buffer);
-                    });
+                streamToSend
+                    .pipe(zlib.createGzip())
+                    .pipe(res);
                 } else {
                     res.writeHead(200, { "Content-Type": "text/html" });
                     res.end(html);
