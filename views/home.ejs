@@ -43,10 +43,10 @@
         <div class="items-grid" id="itemsContainer">
             <% if (items && items.length > 0) { %>
                 <% items.forEach(item => { %>
-                    <div class="item-card">
+                    <div class="card">
                         <img src="<%= item.foto_barang %>" alt="Foto Barang">
 
-                        <div class="item-info">
+                        <div class="card-info">
                             <h3><%= item.nama_barang %></h3>
                             <p class="type <%= item.tipe_laporan %>">
                                 <%= item.tipe_laporan === "kehilangan" ? "Kehilangan" : "Ditemukan" %>
