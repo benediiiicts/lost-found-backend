@@ -12,7 +12,9 @@ import { renderHistoryPage } from "./controllers/historyController.js";
 import { renderAdminPage } from "./controllers/adminController.js";
 import { renderLoginPage } from "./controllers/loginController.js";
 import { renderRegisterPage } from "./controllers/registerController.js";
-import { readBody } from "./utils/utility.js";
+import { deleteLaporan } from "./controllers/deleteLaporanController.js";
+import { deleteLaporanAdmin } from "./controllers/adminController.js";
+
 
 
 const server = new http.Server();
@@ -59,15 +61,15 @@ server.on("request", async (req, res) => {
             try {
                 if (contentType === "application/javascript") {
                     const minifiedResult = await minify(data.toString());
-                    
+
                     if (minifiedResult.code) {
                         dataToSend = Buffer.from(minifiedResult.code);
                         console.log("JS Minified");
                     }
-                } 
+                }
                 else if (contentType === "text/css") {
                     const minifiedResult = cssMinifier.minify(data.toString());
-                    
+
                     if (minifiedResult.styles) {
                         dataToSend = Buffer.from(minifiedResult.styles);
                         console.log("CSS Minified");
@@ -104,7 +106,7 @@ server.on("request", async (req, res) => {
     // ------------------------------
     // SESSION CHECK (simple)
     // ------------------------------
-    const rawCookie = req.headers.cookie; 
+    const rawCookie = req.headers.cookie;
     let sessionId = null;
 
     if (rawCookie) {
@@ -121,9 +123,26 @@ server.on("request", async (req, res) => {
 
     console.log(`[${method}] ${pathname} | Session: ${isLoggedIn ? sessionId : "NONE"}`);
 
-    // ------------------------------
-    // ROUTING
-    // ------------------------------
+    if (pathname.startsWith("/delete/") && method === "GET") {
+        if (!isLoggedIn) {
+            res.writeHead(302, { location: "/login" });
+            return res.end();
+        }
+
+        const id = pathname.split("/")[2];
+        return deleteLaporanAdmin(req, res, SESSIONS.get(sessionId));
+    }
+
+    if (pathname.startsWith("/admin/delete/") && method === "GET") {
+        if (!isLoggedIn) {
+            res.writeHead(302, { location: "/login" });
+            return res.end();
+        }
+
+        const id = pathname.split("/")[3];
+        return deleteLaporanAdmin(req, res, SESSIONS.get(sessionId), id);
+    }
+
     switch (pathname) {
 
         case "/login":
@@ -189,15 +208,15 @@ server.on("request", async (req, res) => {
                         res.writeHead(404, { "Content-Type": "text/html" });
                         return res.end(message);
                     }
-    
-                    res.writeHead(404, { 
+
+                    res.writeHead(404, {
                         "Content-Type": "text/html",
                         "Content-Encoding": "gzip"
                     });
                     res.end(buffer);
                 });
 
-            }else {
+            } else {
                 res.writeHead(404, { "Content-Type": "text/html" });
                 res.end(message);
             }

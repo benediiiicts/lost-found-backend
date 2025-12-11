@@ -434,3 +434,27 @@ textarea:focus {
     font-size: 0.9rem;
     font-weight: 600;
 }
+
+.btn-delete {
+    display: inline-block;
+    padding: 8px 14px;
+    background-color: #e53935;     /* merah */
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;         /* kalau pakai <a> */
+    transition: background 0.2s, transform 0.15s ease;
+}
+
+.btn-delete:hover {
+    background-color: #c62828;
+    transform: translateY(-2px);
+}
+
+.btn-delete:active {
+    background-color: #b71c1c;
+    transform: translateY(0);
+}

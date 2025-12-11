@@ -32,7 +32,6 @@
             <table id="userTable">
                 <thead>
                     <tr>
-                        <th>Pelapor</th>
                         <th>Barang</th>
                         <th>Gambar</th>
                         <th>Deskripsi</th>
@@ -46,7 +45,6 @@
                     <% if (items && items.length > 0) { %>
                         <% items.forEach(item => { %>
                             <tr>
-                                <td><%= item.nama_pelapor %></td>
                                 <td><%= item.nama_barang %></td>
                                 <td>
                                     <% if (item.gambar) { %>
@@ -59,8 +57,8 @@
                                 <td><%= item.lokasi %></td>
                                 <td><%= item.status %></td>
                                 <td>
-                                    <a href="/edit/<%= item.id %>" class="btn-edit">Edit</a>
-                                    <a href="/hapus/<%= item.id %>" class="btn-delete">Hapus</a>
+                                    <a href="/delete/<%= item.id_laporan %>" class="btn-delete">Hapus</a>
+
                                 </td>
                             </tr>
                         <% }) %>
