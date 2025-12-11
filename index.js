@@ -84,7 +84,7 @@ server.on("request", async (req, res) => {
                         res.writeHead(200, { "Content-Type": contentType });
                         res.end(data);
                         return;
-                    }
+                    }   
 
                     res.writeHead(200, {
                         "Content-Type": contentType,
