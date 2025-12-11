@@ -464,3 +464,11 @@ textarea:focus {
     background-color: #b71c1c;
     transform: translateY(0);
 }
+
+.hero h1, .hero p {
+    color: white;
+}
+
+.page-title {
+    color: white;
+}
