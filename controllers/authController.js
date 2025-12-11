@@ -1,6 +1,50 @@
 import crypto from "node:crypto";
 import pool from "../db.js";
+import ejs from "ejs";
+import path from "path";
+import { fileURLToPath } from "url";
+import zlib from "zlib";
 import { readBody } from "../utils/utility.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const handleLoginError = (req, res, message) => {
+    const filePath = path.join(__dirname, "..", "views", "login.ejs");
+
+    ejs.renderFile(
+        filePath,
+        {success: false, message: message},
+        (err, html) => {
+            if(err){
+                console.error(err);
+                res.writeHead(500);
+                return res.end("EJS Error: " + err);
+            }
+
+            const acceptEncoding = req.headers['accept-encoding'] || "";
+                                            
+            if (acceptEncoding.includes('gzip')) {
+                zlib.gzip(html, (error, buffer) => {
+                    if (error) {
+                        console.error("Compression Error:", error);
+                        res.writeHead(200, { "Content-Type": "text/html" });
+                        return res.end(html);
+                    }
+            
+                    res.writeHead(200, { 
+                        "Content-Type": "text/html",
+                        "Content-Encoding": "gzip"
+                    });
+                    res.end(buffer);
+                });
+            } else {
+                res.writeHead(200, { "Content-Type": "text/html" });
+                res.end(html);
+            }
+        }
+    );
+};
 
 export const handleLogin = async (req, res, SESSIONS) => {
     const { username, password } = await readBody(req);
@@ -19,11 +63,9 @@ export const handleLogin = async (req, res, SESSIONS) => {
                     res.writeHead(302, { "Location": "/" });
                 }
                 return res.end();
-
             }
         }
-        res.writeHead(401, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ success: false, message: "Username/Password Salah" }));
+        handleLoginError(req, res, "Username atau password salah!");
     } catch (err) {
         console.error(err);
         res.writeHead(500);
@@ -37,6 +79,13 @@ export const handleRegister = async (req, res, SESSIONS) => {
         await pool.query('INSERT INTO users (username, password, role) VALUES ($1, $2, $3)', [username, password, 'pelapor']);
         res.writeHead(302, { "Location": "/login" });
         res.end();
+        // res.writeHead(200, { "Content-Type": "text/html" });
+        // res.end(`
+        //     <script>
+        //         alert("Registrasi berhasil! Silakan login.");
+        //         window.location.href = "/login";
+        //     </script>    
+        // `)
     } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: false, message: "Username sudah dipakai" }));

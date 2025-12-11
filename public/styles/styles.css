@@ -422,3 +422,15 @@ textarea:focus {
     align-items: center;
     height: 100%; 
 }
+
+#alert-info {
+    background-color: #ffebee;
+    color: var(--danger-color);
+    border: 1px solid #fab1a0;
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
