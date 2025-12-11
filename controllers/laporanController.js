@@ -93,7 +93,7 @@ export const postLaporan = (req, res, currentUser) => {
                 [currentUser.id_user, tipe, nameVal, locVal, descVal, fotoPath]
             );
 
-            res.writeHead(302, { Location: "/home" });
+            res.writeHead(302, { Location: "/" });
             res.end();
 
         } catch (dbErr) {
