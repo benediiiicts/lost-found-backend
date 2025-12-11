@@ -56,7 +56,15 @@
                                 <td><%= item.lokasi %></td>
                                 <td><%= item.status %></td>
                                 <td>
-                                    <a href="/admin/delete/<%= item.id_laporan %>" class="btn-delete">Hapus</a>      
+                                    <% if (item.status === 'Selesai') { %>
+                                        
+                                        <a href="#" class="btn-selesai gelap">Sudah Selesai</a>
+
+                                    <% } else { %>
+                                        
+                                        <a href="/admin/delete/<%= item.id_laporan %>" class="btn-selesai">Selesai</a>
+
+                                    <% } %>
                                 </td>
                             </tr>
                         <% }) %>
