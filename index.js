@@ -4,6 +4,7 @@ import path from "path";
 import zlib from "zlib";
 import { minify } from "terser";
 import CleanCSS from "clean-css";
+import { Readable } from 'stream';
 
 import { handleLogin, handleLogout, handleRegister } from "./controllers/authController.js";
 import { renderHomePage } from "./controllers/homeController.js";
@@ -12,7 +13,9 @@ import { renderHistoryPage } from "./controllers/historyController.js";
 import { renderAdminPage } from "./controllers/adminController.js";
 import { renderLoginPage } from "./controllers/loginController.js";
 import { renderRegisterPage } from "./controllers/registerController.js";
-import { readBody } from "./utils/utility.js";
+import { deleteLaporan } from "./controllers/deleteLaporanController.js";
+import { deleteLaporanAdmin } from "./controllers/adminController.js";
+
 
 
 const server = new http.Server();
@@ -53,21 +56,21 @@ server.on("request", async (req, res) => {
                 contentType = "image/jpeg";
 
             const acceptEncoding = req.headers['accept-encoding'] || "";
-            const isCompressible = contentType === "text/css" || contentType === "application/javascript";
+            const isCompressible = contentType === "text/css" || contentType === "application/javascript" || contentType === "image/jpeg" || contentType === "image/png";
             let dataToSend = data;
 
             try {
                 if (contentType === "application/javascript") {
                     const minifiedResult = await minify(data.toString());
-                    
+
                     if (minifiedResult.code) {
                         dataToSend = Buffer.from(minifiedResult.code);
                         console.log("JS Minified");
                     }
-                } 
+                }
                 else if (contentType === "text/css") {
                     const minifiedResult = cssMinifier.minify(data.toString());
-                    
+
                     if (minifiedResult.styles) {
                         dataToSend = Buffer.from(minifiedResult.styles);
                         console.log("CSS Minified");
@@ -77,21 +80,15 @@ server.on("request", async (req, res) => {
                 console.error("Gagal minifikasi (akan mengirim data original):", minifyError);
             }
 
-            if (acceptEncoding.includes('gzip') && isCompressible) {
-                zlib.gzip(dataToSend, (err, buffer) => {
-                    if (err) {
-                        console.error("Gzip error:", err);
-                        res.writeHead(200, { "Content-Type": contentType });
-                        res.end(data);
-                        return;
-                    }   
+            const streamToSend = Readable.from(dataToSend);
 
-                    res.writeHead(200, {
-                        "Content-Type": contentType,
-                        "Content-Encoding": "gzip"
-                    });
-                    res.end(buffer);
+            if (acceptEncoding.includes('gzip') && isCompressible) {
+                res.writeHead(200, {
+                    "Content-Type": contentType,
+                    "Content-Encoding": "gzip"
                 });
+
+                streamToSend.pipe(zlib.createGzip()).pipe(res);
             } else {
                 res.writeHead(200, { "Content-Type": contentType });
                 res.end(dataToSend);
@@ -104,7 +101,7 @@ server.on("request", async (req, res) => {
     // ------------------------------
     // SESSION CHECK (simple)
     // ------------------------------
-    const rawCookie = req.headers.cookie; 
+    const rawCookie = req.headers.cookie;
     let sessionId = null;
 
     if (rawCookie) {
@@ -121,9 +118,26 @@ server.on("request", async (req, res) => {
 
     console.log(`[${method}] ${pathname} | Session: ${isLoggedIn ? sessionId : "NONE"}`);
 
-    // ------------------------------
-    // ROUTING
-    // ------------------------------
+    if (pathname.startsWith("/delete/") && method === "GET") {
+        if (!isLoggedIn) {
+            res.writeHead(302, { location: "/login" });
+            return res.end();
+        }
+
+        const id = pathname.split("/")[2];
+        return deleteLaporanAdmin(req, res, SESSIONS.get(sessionId));
+    }
+
+    if (pathname.startsWith("/admin/delete/") && method === "GET") {
+        if (!isLoggedIn) {
+            res.writeHead(302, { location: "/login" });
+            return res.end();
+        }
+
+        const id = pathname.split("/")[3];
+        return deleteLaporanAdmin(req, res, SESSIONS.get(sessionId), id);
+    }
+
     switch (pathname) {
 
         case "/login":
@@ -189,15 +203,15 @@ server.on("request", async (req, res) => {
                         res.writeHead(404, { "Content-Type": "text/html" });
                         return res.end(message);
                     }
-    
-                    res.writeHead(404, { 
+
+                    res.writeHead(404, {
                         "Content-Type": "text/html",
                         "Content-Encoding": "gzip"
                     });
                     res.end(buffer);
                 });
 
-            }else {
+            } else {
                 res.writeHead(404, { "Content-Type": "text/html" });
                 res.end(message);
             }
