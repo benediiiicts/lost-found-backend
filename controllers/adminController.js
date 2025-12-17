@@ -11,7 +11,10 @@ const __dirname = path.dirname(__filename);
 export const renderAdminPage = async (req, res, currentUser) => {
     try {
         const result = await pool.query(
-            `SELECT * FROM laporan ORDER BY created_at DESC`
+            `SELECT laporan.*, users.username 
+             FROM laporan 
+             JOIN users ON laporan.id_user = users.id_user 
+             ORDER BY laporan.created_at DESC`
         );
 
         const filePath = path.join(__dirname, "..", "views", "admin.ejs");
@@ -61,7 +64,10 @@ export const deleteLaporanAdmin = async (req, res, currentUser,id_laporan) => {
         );
 
         const result = await pool.query(
-            `SELECT * FROM laporan ORDER BY created_at DESC`,
+            `SELECT laporan.*, users.username 
+             FROM laporan 
+             JOIN users ON laporan.id_user = users.id_user 
+             ORDER BY laporan.created_at DESC`,
             []
         );
 
