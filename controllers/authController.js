@@ -9,6 +9,10 @@ import { readBody } from "../utils/utility.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const hashPass = (username, password) => {
+  return crypto.createHmac("sha256", username).update(password).digest("hex");
+}
+
 const handleLoginError = (req, res, message) => {
     const filePath = path.join(__dirname, "..", "views", "login.ejs");
 
@@ -58,7 +62,9 @@ export const handleLogin = async (req, res, SESSIONS) => {
     if (result.rows.length > 0) {
       const user = result.rows[0];
 
-      if (user.password === password) {
+      const passwordHashed = hashPass(username, password);
+
+      if (user.password === passwordHashed) {
         const newSessionId = crypto.randomBytes(32).toString("hex");
 
         SESSIONS.set(newSessionId, {
@@ -107,7 +113,8 @@ export const handleLogin = async (req, res, SESSIONS) => {
 export const handleRegister = async (req, res, SESSIONS) => {
     const { username, password } = await readBody(req);
     try {
-        await pool.query('INSERT INTO users (username, password, role) VALUES ($1, $2, $3)', [username, password, 'pelapor']);
+        const passwordHashed = hashPass(username, password);
+        await pool.query('INSERT INTO users (username, password, role) VALUES ($1, $2, $3)', [username, passwordHashed, 'pelapor']);
         res.writeHead(302, { "Location": "/login" });
         res.end();
     } catch (err) {
