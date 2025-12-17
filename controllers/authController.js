@@ -47,31 +47,61 @@ const handleLoginError = (req, res, message) => {
 };
 
 export const handleLogin = async (req, res, SESSIONS) => {
-    const { username, password } = await readBody(req);
-    try {
-        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-        if (result.rows.length > 0) {
-            const user = result.rows[0];
-            if (user.password === password) {
-                const newSessionId = crypto.randomBytes(32).toString("hex");
-                SESSIONS.set(newSessionId, { id_user: user.id_user, username: user.username, role: user.role });
+  const { username, password } = await readBody(req);
 
-                // res.setHeader("Set-Cookie", `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/`);
-                res.setHeader("Set-Cookie", `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Secure; Max-Age=3600; Path=/`);
-                if (user.role === "admin") {
-                    res.writeHead(302, { "Location": "/admin" });
-                } else {
-                    res.writeHead(302, { "Location": "/" });
-                }
-                return res.end();
-            }
-        }
-        handleLoginError(req, res, "Username atau password salah!");
-    } catch (err) {
-        console.error(err);
-        res.writeHead(500);
-        res.end(JSON.stringify({ success: false, message: "Server Error" }));
+  try {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
+
+    if (result.rows.length > 0) {
+      const user = result.rows[0];
+
+      if (user.password === password) {
+        const newSessionId = crypto.randomBytes(32).toString("hex");
+
+        SESSIONS.set(newSessionId, {
+          id_user: user.id_user,
+          username: user.username,
+          role: user.role,
+        });
+
+        const isSecure =
+          req.headers["x-forwarded-proto"] === "https";
+
+        const cookie = [
+          `session_id=${newSessionId}`,
+          "HttpOnly",
+          "SameSite=Strict",
+          isSecure ? "Secure" : "",
+          "Max-Age=3600",
+          "Path=/",
+        ]
+          .filter(Boolean)
+          .join("; ");
+
+        res.setHeader("Set-Cookie", cookie);
+
+        res.writeHead(302, {
+          Location: user.role === "admin" ? "/admin" : "/",
+        });
+
+        return res.end();
+      }
     }
+
+    handleLoginError(req, res, "Username atau password salah!");
+  } catch (err) {
+    console.error(err);
+    res.writeHead(500);
+    res.end(
+      JSON.stringify({
+        success: false,
+        message: "Server Error",
+      })
+    );
+  }
 };
 
 export const handleRegister = async (req, res, SESSIONS) => {
@@ -80,13 +110,6 @@ export const handleRegister = async (req, res, SESSIONS) => {
         await pool.query('INSERT INTO users (username, password, role) VALUES ($1, $2, $3)', [username, password, 'pelapor']);
         res.writeHead(302, { "Location": "/login" });
         res.end();
-        // res.writeHead(200, { "Content-Type": "text/html" });
-        // res.end(`
-        //     <script>
-        //         alert("Registrasi berhasil! Silakan login.");
-        //         window.location.href = "/login";
-        //     </script>    
-        // `)
     } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: false, message: "Username sudah dipakai" }));

@@ -30,9 +30,43 @@ const publicPath = path.join(process.cwd(), "public");
 
 // ------------------------------
 server.on("request", async (req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
+    // const url = new URL(req.url, `http://${req.headers.host}`);
+
+    const TRUST_PROXY =
+    req.socket.remoteAddress === "127.0.0.1" ||
+    req.socket.remoteAddress === "::1";
+
+    const proto = TRUST_PROXY
+    ? req.headers["x-forwarded-proto"] || "http"
+    : "http";
+
+    const host = TRUST_PROXY
+        ? req.headers["x-forwarded-host"] || req.headers.host
+        : req.headers.host;
+
+    const clientip = TRUST_PROXY
+        ? req.headers["x-forwarded-for"]?.split(",")[0]?.trim()
+        : req.socket.remoteAddress;
+
+    const url = new URL(req.url, `${proto}://${host}`);
     const pathname = url.pathname;
     const method = req.method;
+
+    console.log(`
+    === Incoming Request ===
+    Method        : ${method}
+    Path          : ${pathname}
+    Protocol      : ${proto.toUpperCase()}
+    Host          : ${host}
+    Client IP     : ${clientip}
+    Remote Address: ${req.socket.remoteAddress}
+    Trust Proxy   : ${TRUST_PROXY ? "YES" : "NO"}
+    XFP           : ${req.headers["x-forwarded-proto"] || "-"}
+    XFF           : ${req.headers["x-forwarded-for"] || "-"}
+    XFH           : ${req.headers["x-forwarded-host"] || "-"}
+    =========================
+    `);
+
 
     // STATIC
     if (
@@ -116,7 +150,10 @@ server.on("request", async (req, res) => {
     }
     const isLoggedIn = sessionId && SESSIONS.has(sessionId);
 
-    console.log(`[${method}] ${pathname} | Session: ${isLoggedIn ? sessionId : "NONE"}`);
+    // console.log(`[${method}] ${pathname} | Session: ${isLoggedIn ? sessionId : "NONE"}`);
+    const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress;
+    console.log(`[${method}] ${pathname} | IP: ${clientIp}`);
+
 
     if (pathname.startsWith("/delete/") && method === "GET") {
         if (!isLoggedIn) {
