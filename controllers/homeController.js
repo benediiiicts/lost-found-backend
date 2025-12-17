@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 export const renderHomePage = async (req, res, currentUser) => {
     try {
         const result = await pool.query(
-            `SELECT * FROM laporan ORDER BY created_at DESC`
+            `SELECT * FROM laporan WHERE status = 'aktif' ORDER BY created_at DESC`
         );
 
         const filePath = path.join(__dirname, "..", "views", "home.ejs");

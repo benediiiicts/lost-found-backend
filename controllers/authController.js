@@ -56,7 +56,8 @@ export const handleLogin = async (req, res, SESSIONS) => {
                 const newSessionId = crypto.randomBytes(32).toString("hex");
                 SESSIONS.set(newSessionId, { id_user: user.id_user, username: user.username, role: user.role });
 
-                res.setHeader("Set-Cookie", `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/`);
+                // res.setHeader("Set-Cookie", `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Max-Age=3600; Path=/`);
+                res.setHeader("Set-Cookie", `session_id=${newSessionId}; HttpOnly; SameSite=Strict; Secure; Max-Age=3600; Path=/`);
                 if (user.role === "admin") {
                     res.writeHead(302, { "Location": "/admin" });
                 } else {
