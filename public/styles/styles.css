@@ -458,29 +458,30 @@ textarea:focus {
 .btn-selesai {
     display: inline-block;
     padding: 8px 14px;
-    background-color: #30fa3a;     /* merah */
+    background-color: #30fa3a;
     color: white;
     font-size: 14px;
     font-weight: 600;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    text-decoration: none;         /* kalau pakai <a> */
+    text-decoration: none;
     transition: background 0.2s, transform 0.15s ease;
 }
 
 .btn-selesai.gelap{
     display: inline-block;
     padding: 8px 14px;
-    background-color: #4a4a4a;     /* merah */
+    background-color: #4a4a4a;
     color: white;
     font-size: 14px;
     font-weight: 600;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    text-decoration: none;         /* kalau pakai <a> */
+    text-decoration: none;
     transition: background 0.2s, transform 0.15s ease;
+    pointer-events: none;
 }
 
 
@@ -499,5 +500,11 @@ textarea:focus {
 }
 
 .page-title {
+    color: white;
+}
+
+#blm_ada {
+    text-align:center;
+    margin-top:20px;
     color: white;
 }
