@@ -18,6 +18,7 @@ const proxy = https.createServer(options, (req, res) => {
         ...req.headers,
         "x-forwarded-proto": "https",
         "x-forwarded-for": req.socket.remoteAddress,
+        "x-forwarded-host": req.headers.host
       },
     },
     (serverRes) => {
