@@ -10,18 +10,14 @@ export const readBody = (request) => {
             const contentType = request.headers["content-type"] || "";
 
             try {
-                // Kalau JSON
                 if (contentType.includes("application/json")) {
                     return resolve(JSON.parse(body));
                 }
 
-                // Kalau form-urlencoded
                 if (contentType.includes("application/x-www-form-urlencoded")) {
                     const params = new URLSearchParams(body);
                     return resolve(Object.fromEntries(params.entries()));
                 }
-
-                // fallback
                 resolve({});
             } catch (e) {
                 resolve({});

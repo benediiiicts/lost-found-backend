@@ -1,5 +1,4 @@
 import zlib from "zlib";
-import sharp from "sharp";
 import { promisify } from "util";
 
 const gzip = promisify(zlib.gzip);
