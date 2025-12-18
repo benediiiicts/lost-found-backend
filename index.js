@@ -27,10 +27,7 @@ const cssMinifier = new CleanCSS()
 // ------------------------------
 const publicPath = path.join(process.cwd(), "public");
 
-
-// ------------------------------
 server.on("request", async (req, res) => {
-    // const url = new URL(req.url, `http://${req.headers.host}`);
 
     const TRUST_PROXY =
     req.socket.remoteAddress === "127.0.0.1" ||
@@ -126,7 +123,7 @@ server.on("request", async (req, res) => {
     }
 
     // ------------------------------
-    // SESSION CHECK (simple)
+    // SESSION CHECK
     // ------------------------------
     const rawCookie = req.headers.cookie;
     let sessionId = null;

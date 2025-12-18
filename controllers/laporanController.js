@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import formidable from "formidable";
 import { Readable } from 'stream';
 import { compressFile }from "./compresser.js";
-import fs from "fs";
 import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -70,13 +69,13 @@ export const postLaporan = (req, res, currentUser) => {
             const uploadedFile = files.fotoBarang ? (Array.isArray(files.fotoBarang) ? files.fotoBarang[0] : files.foto) : null;
 
             if (uploadedFile) {
-                const newFilename = `${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`; // Paksa jadi .jpg
+                const newFilename = `${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`;
                 const finalPath = path.join(process.cwd(), "public/gambar", newFilename);
 
                 await sharp(uploadedFile.filepath)
-                    .resize(800) // Resize lebar ke 800px (tinggi menyesuaikan), agar file tidak raksasa
-                    .jpeg({ quality: 70, mozjpeg: true }) // Kompres jadi JPEG kualitas 70%
-                    .toFile(finalPath); // Simpan ke folder public
+                    .resize(800)
+                    .jpeg({ quality: 70, mozjpeg: true })
+                    .toFile(finalPath);
                 
                 fotoPath = `/gambar/${newFilename}`;
             }

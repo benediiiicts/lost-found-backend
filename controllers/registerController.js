@@ -1,7 +1,6 @@
 import ejs from "ejs";
 import path from "path";
 import { fileURLToPath } from "url";
-import zlib from "zlib";
 import { Readable } from 'stream';
 import { compressFile }from "./compresser.js";
 
