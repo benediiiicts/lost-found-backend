@@ -3,8 +3,10 @@ import pool from "../db.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import formidable from "formidable";
-import zlib from "zlib";
 import { Readable } from 'stream';
+import { compressFile }from "./compresser.js";
+import fs from "fs";
+import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,30 +18,22 @@ export const renderLaporanPage = async (req, res, currentUser) => {
         ejs.renderFile(
             filePath,
             { user: currentUser },
-            (err, html) => {
+            async (err, html) => {
                 if (err) {
                     console.error(err);
                     res.writeHead(500);
                     return res.end("EJS Error: " + err);
                 }
 
-                const acceptEncoding = req.headers['accept-encoding'] || "";
-                                                
-                const streamToSend = Readable.from(html);
-                                
-                if (acceptEncoding.includes('gzip')) {
-                    res.writeHead(200, {
-                    "Content-Type": "text/html",
-                    "Content-Encoding": "gzip"
+                const contentType = "text/html";
+                let compressedFile = await compressFile(req, res, contentType, html);
+                const streamToSend = Readable.from(compressedFile);
+                res.writeHead(200, {
+                    "Content-Type": contentType,
+                    "Transfer-Encoding": "chunked"
                 });
 
-                streamToSend
-                    .pipe(zlib.createGzip())
-                    .pipe(res);
-                } else {
-                    res.writeHead(200, { "Content-Type": "text/html" });
-                    res.end(html);
-                }
+                streamToSend.pipe(res);
             }
         );
     } catch (err) {
@@ -51,15 +45,11 @@ export const renderLaporanPage = async (req, res, currentUser) => {
 
 export const postLaporan = (req, res, currentUser) => {
     const form = formidable({
-        uploadDir: path.join(process.cwd(), "public/gambar"),
         keepExtensions: true,
         maxFileSize: 5 * 1024 * 1024,
         allowEmptyFiles: false,
         filter: function({ mimetype }) {
             return mimetype && mimetype.includes("image");
-        },
-        filename: (name, ext) => {
-            return `${Date.now()}-${Math.floor(Math.random() * 1000)}${ext}`;
         }
     });
 
@@ -80,7 +70,15 @@ export const postLaporan = (req, res, currentUser) => {
             const uploadedFile = files.fotoBarang ? (Array.isArray(files.fotoBarang) ? files.fotoBarang[0] : files.foto) : null;
 
             if (uploadedFile) {
-                fotoPath = `/gambar/${uploadedFile.newFilename}`;
+                const newFilename = `${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`; // Paksa jadi .jpg
+                const finalPath = path.join(process.cwd(), "public/gambar", newFilename);
+
+                await sharp(uploadedFile.filepath)
+                    .resize(800) // Resize lebar ke 800px (tinggi menyesuaikan), agar file tidak raksasa
+                    .jpeg({ quality: 70, mozjpeg: true }) // Kompres jadi JPEG kualitas 70%
+                    .toFile(finalPath); // Simpan ke folder public
+                
+                fotoPath = `/gambar/${newFilename}`;
             }
 
             const tipe = typeVal === "lost" ? "kehilangan" : "penemuan";

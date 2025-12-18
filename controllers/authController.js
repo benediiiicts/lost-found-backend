@@ -3,8 +3,8 @@ import pool from "../db.js";
 import ejs from "ejs";
 import path from "path";
 import { fileURLToPath } from "url";
-import zlib from "zlib";
 import { readBody } from "../utils/utility.js";
+import { compressFile }from "./compresser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,33 +19,22 @@ const handleLoginError = (req, res, message) => {
     ejs.renderFile(
         filePath,
         {success: false, message: message},
-        (err, html) => {
+        async (err, html) => {
             if(err){
                 console.error(err);
                 res.writeHead(500);
                 return res.end("EJS Error: " + err);
             }
 
-            const acceptEncoding = req.headers['accept-encoding'] || "";
-                                            
-            if (acceptEncoding.includes('gzip')) {
-                zlib.gzip(html, (error, buffer) => {
-                    if (error) {
-                        console.error("Compression Error:", error);
-                        res.writeHead(200, { "Content-Type": "text/html" });
-                        return res.end(html);
-                    }
-            
-                    res.writeHead(200, { 
-                        "Content-Type": "text/html",
-                        "Content-Encoding": "gzip"
-                    });
-                    res.end(buffer);
-                });
-            } else {
-                res.writeHead(200, { "Content-Type": "text/html" });
-                res.end(html);
-            }
+            const contentType = "text/html";
+            let compressedFile = await compressFile(req, res, contentType, html);
+            const streamToSend = Readable.from(compressedFile);
+            res.writeHead(200, {
+                "Content-Type": contentType,
+                "Transfer-Encoding": "chunked"
+            });
+
+            streamToSend.pipe(res);
         }
     );
 };
