@@ -1,7 +1,6 @@
 import http from "node:http";
 import fs from "fs";
 import path from "path";
-import zlib from "zlib";
 import { minify } from "terser";
 import CleanCSS from "clean-css";
 import { Readable } from 'stream';
@@ -15,6 +14,7 @@ import { renderLoginPage } from "./controllers/loginController.js";
 import { renderRegisterPage } from "./controllers/registerController.js";
 import { deleteLaporan } from "./controllers/deleteLaporanController.js";
 import { deleteLaporanAdmin } from "./controllers/adminController.js";
+import { compressFile }from "./controllers/compresser.js";
 
 
 
@@ -55,8 +55,6 @@ server.on("request", async (req, res) => {
             if (pathname.endsWith(".jpg") || pathname.endsWith(".jpeg"))
                 contentType = "image/jpeg";
 
-            const acceptEncoding = req.headers['accept-encoding'] || "";
-            const isCompressible = contentType === "text/css" || contentType === "application/javascript" || contentType === "image/jpeg" || contentType === "image/png";
             let dataToSend = data;
 
             try {
@@ -80,19 +78,14 @@ server.on("request", async (req, res) => {
                 console.error("Gagal minifikasi (akan mengirim data original):", minifyError);
             }
 
-            const streamToSend = Readable.from(dataToSend);
+            let compressedFile = await compressFile(req, res, contentType, dataToSend);
+            const streamToSend = Readable.from(compressedFile);
+            res.writeHead(200, {
+                "Content-Type": contentType,
+                "Transfer-Encoding": "chunked"
+            });
 
-            if (acceptEncoding.includes('gzip') && isCompressible) {
-                res.writeHead(200, {
-                    "Content-Type": contentType,
-                    "Content-Encoding": "gzip"
-                });
-
-                streamToSend.pipe(zlib.createGzip()).pipe(res);
-            } else {
-                res.writeHead(200, { "Content-Type": contentType });
-                res.end(dataToSend);
-            }
+            streamToSend.pipe(res);
         });
 
         return;
@@ -193,28 +186,15 @@ server.on("request", async (req, res) => {
 
         default:
             let message = "Route not found";
+            const contentType = "text/html";
+            let compressedFile = await compressFile(req, res, contentType, message);
+            const streamToSend = Readable.from(compressedFile);
+            res.writeHead(404, {
+                "Content-Type": contentType,
+                "Transfer-Encoding": "chunked"
+            });
 
-            const acceptEncoding = req.headers['accept-encoding'] || "";
-
-            if (acceptEncoding.includes('gzip')) {
-                zlib.gzip(message, (error, buffer) => {
-                    if (error) {
-                        console.error("Compression Error:", error);
-                        res.writeHead(404, { "Content-Type": "text/html" });
-                        return res.end(message);
-                    }
-
-                    res.writeHead(404, {
-                        "Content-Type": "text/html",
-                        "Content-Encoding": "gzip"
-                    });
-                    res.end(buffer);
-                });
-
-            } else {
-                res.writeHead(404, { "Content-Type": "text/html" });
-                res.end(message);
-            }
+            streamToSend.pipe(res);
     }
 });
 
