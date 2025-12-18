@@ -47,8 +47,8 @@
                             <tr>
                                 <td><%= item.nama_barang %></td>
                                 <td>
-                                    <% if (item.gambar) { %>
-                                        <img src="/uploads/<%= item.gambar %>" alt="gambar" style="height: 60px;">
+                                    <% if (item.foto_barang) { %>
+                                        <img src="<%= item.foto_barang %>" alt="gambar" style="width: 80px;">
                                     <% } else { %>
                                         -
                                     <% } %>
