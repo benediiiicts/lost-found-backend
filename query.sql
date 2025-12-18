@@ -23,6 +23,6 @@ CREATE TABLE laporan (
 INSERT INTO users (username, password, role) 
 VALUES (
     'admin', 
-    encode(hmac('admin', 'admin', 'sha256'), 'hex'), 
+    encode(digest('adminadmin', 'sha256'), 'hex'),
     'admin'
 );

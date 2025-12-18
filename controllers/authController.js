@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const hashPass = (username, password) => {
-  return crypto.createHmac("sha256", username).update(password).digest("hex");
+  return crypto.createHash("sha256").update(password + username).digest("hex");
 }
 
 const handleLoginError = (req, res, message) => {
